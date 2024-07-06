@@ -1,0 +1,37 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.29/Modules/CMakeDependentOption.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CMakeParseArguments.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CMakePushCheckState.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckCCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckCSourceRuns.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckCXXCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckCXXSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckIncludeFiles.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckLanguage.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckStructHasMember.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/CheckSymbolExists.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindGit.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/FindPkgConfig.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/GNUInstallDirs.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/Internal/CheckCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/Internal/CheckSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-3.29/Modules/Internal/CheckSourceRuns.cmake
+F:/MelloEngine/Code/third_party/SDL/SDL_config.h.intermediate
+F:/MelloEngine/third_party/SDL/CMakeLists.txt
+F:/MelloEngine/third_party/SDL/SDL2.spec.in
+F:/MelloEngine/third_party/SDL/cmake/CheckCPUArchitecture.cmake
+F:/MelloEngine/third_party/SDL/cmake/macros.cmake
+F:/MelloEngine/third_party/SDL/cmake/sdlchecks.cmake
+F:/MelloEngine/third_party/SDL/cmake/sdlfind.cmake
+F:/MelloEngine/third_party/SDL/cmake/sdlplatform.cmake
+F:/MelloEngine/third_party/SDL/cmake_uninstall.cmake.in
+F:/MelloEngine/third_party/SDL/include/SDL_config.h.cmake
+F:/MelloEngine/third_party/SDL/include/SDL_revision.h.cmake
+F:/MelloEngine/third_party/SDL/sdl2-config.in
+F:/MelloEngine/third_party/SDL/sdl2.pc.in

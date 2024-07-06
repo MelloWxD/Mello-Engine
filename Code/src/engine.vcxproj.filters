@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="F:\MelloEngine\Code\src\CMakeFiles\engine.dir\cmake_pch.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\vk_initializers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\vk_images.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\vk_descriptors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\vk_pipelines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\vk_engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\vk_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="F:\MelloEngine\src\camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\CollisionHandler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="F:\MelloEngine\src\vk_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\vk_initializers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\vk_images.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\vk_descriptors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\vk_pipelines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\vk_engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\vk_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\src\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\Code\src\CMakeFiles\engine.dir\Debug\cmake_pch.hxx">
+      <Filter>Precompile Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\Code\src\CMakeFiles\engine.dir\Release\cmake_pch.hxx">
+      <Filter>Precompile Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\Code\src\CMakeFiles\engine.dir\MinSizeRel\cmake_pch.hxx">
+      <Filter>Precompile Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="F:\MelloEngine\Code\src\CMakeFiles\engine.dir\RelWithDebInfo\cmake_pch.hxx">
+      <Filter>Precompile Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\CollisionHandler.h" />
+    <ClInclude Include="..\..\src\ColliderShapes.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="F:\MelloEngine\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{C3529880-BB31-3CB9-B0BD-0F956F1E10A7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Precompile Header File">
+      <UniqueIdentifier>{0804238F-D554-3752-88C2-45CCBF864C17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{436C63E1-9667-37A0-B4A6-0AE9003B41EE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JSON">
+      <UniqueIdentifier>{616e6159-bb60-4c00-91dc-701755b4c3f1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\json\test.json">
+      <Filter>JSON</Filter>
+    </None>
+    <None Include="..\..\json\data.json">
+      <Filter>JSON</Filter>
+    </None>
+  </ItemGroup>
+</Project>

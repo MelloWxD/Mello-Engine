@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="F:\MelloEngine\Code\CMakeFiles\3e207afa33ce0371dcdc059e65c46f5c\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{010EF743-ADA4-37DA-B207-F1F4FD4FACF5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
