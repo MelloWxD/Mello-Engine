@@ -54,6 +54,7 @@ public:
 		_transform.rotation.y += rot_velocity.y;
 		_transform.rotation.z += rot_velocity.z;
 		_modelMat = glm::translate(_transform.position) * glm::rotate(_transform.rotation.x, v3(1, 0, 0)) * glm::rotate(_transform.rotation.y, v3(0, 1, 0)) * glm::rotate(_transform.rotation.z, v3(0, 0, 1)) * glm::scale(_transform.scale);
+		this->_pGLTF->topNodes;
 	}
 
 	const bool getCollidable()
@@ -179,6 +180,7 @@ struct RenderObject {
 	MaterialInstance* material;
 	Bounds bounds;
 	m4 transform;
+	m4 modelMat;
 	VkDeviceAddress vertexBufferAddress;
 };
 struct DrawContext 

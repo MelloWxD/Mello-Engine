@@ -1,41 +1,31 @@
 {
     "Scene_Data": [
         {
-            "Model_ID": "Sponza",
-            "Name": "TestObject - 9",
-            "Position_x": -5.708993434906006,
-            "Position_y": -14.474632263183594,
-            "Position_z": -7.415797233581543,
+            "Model_ID": "Cartoon_House",
+            "Name": "TestObject - 9Cube",
+            "Position_x": 3.835707902908325,
+            "Position_y": -6.187180519104004,
+            "Position_z": -7.7825188636779789,
+            "Scale_XYZ": 1.0,
+            "Simulated": false,
+            "Static": false
+        },
+        {
+            "Model_ID": "Cube",
+            "Name": "TestObject - 10Cube",
+            "Position_x": 0.0,
+            "Position_y": 0.0,
+            "Position_z": 0.0,
             "Scale_XYZ": 1.0,
             "Simulated": false,
             "Static": false
         },
         {
             "Model_ID": "Cartoon_House",
-            "Name": "TestObject - 10",
-            "Position_x": 2.242000102996826,
-            "Position_y": 5.8177642822265629,
-            "Position_z": -20.0,
-            "Scale_XYZ": 1.0,
-            "Simulated": false,
-            "Static": false
-        },
-        {
-            "Model_ID": "Damaged_Helmet_pbr",
-            "Name": "TestObject - 11",
-            "Position_x": 3.5017189979553224,
-            "Position_y": 5.983633041381836,
-            "Position_z": 3.9784300327301027,
-            "Scale_XYZ": 1.0,
-            "Simulated": false,
-            "Static": false
-        },
-        {
-            "Model_ID": "Sphere",
-            "Name": "TestObject - 12",
-            "Position_x": 0.6010000109672546,
-            "Position_y": 3.390360116958618,
-            "Position_z": -0.4876396656036377,
+            "Name": "TestObject - 9Cube_Copy",
+            "Position_x": -3.385999917984009,
+            "Position_y": -9.61299991607666,
+            "Position_z": 8.732999801635743,
             "Scale_XYZ": 1.0,
             "Simulated": false,
             "Static": false

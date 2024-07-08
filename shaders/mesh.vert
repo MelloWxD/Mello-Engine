@@ -5,11 +5,6 @@
 
 #include "input_structures.glsl"
 
-layout (location = 0) out vec3 outNormal;
-layout (location = 1) out vec3 outColor;
-layout (location = 2) out vec2 outUV;
-layout (location = 3) out vec3 outFragWorldPos;
-
 struct Vertex {
 
 	vec3 position;
@@ -18,6 +13,12 @@ struct Vertex {
 	float uv_y;
 	vec4 color;
 }; 
+
+layout (location = 0) out vec3 outNormal;
+layout (location = 1) out vec3 outColor;
+layout (location = 2) out vec2 outUV;
+layout (location = 3) out vec3 outFragWorldPos;
+layout (location = 4) out vec3 outFragNormal;
 
 layout(buffer_reference, std430) readonly buffer VertexBuffer{ 
 	Vertex vertices[];
@@ -33,16 +34,17 @@ layout( push_constant ) uniform constants
 void main() 
 {
 	Vertex v = PushConstants.vertexBuffer.vertices[gl_VertexIndex];
-	
+	mat4 normalMatrix = transpose(inverse(PushConstants.render_matrix*sceneData.view));
 	vec4 position = vec4(v.position, 1.0f);
-	vec4 fragWrldpos = PushConstants.render_matrix * position;
-	gl_Position =  sceneData.viewproj * PushConstants.render_matrix *position;
+	outFragWorldPos = (position * PushConstants.render_matrix).xyz;
+	gl_Position =  sceneData.viewproj * PushConstants.render_matrix * position;
+	
 
-	outNormal = (PushConstants.render_matrix * vec4(v.normal, 0.f)).xyz;
-	
-	
+
+	outNormal = vec4(v.normal, 0.f).xyz;
+	outNormal = (normalMatrix * vec4(v.normal, 0.f)).xyz;
+
 	outColor = v.color.xyz * materialData.colorFactors.xyz;	
 	outUV.x = v.uv_x;
 	outUV.y = v.uv_y;
-	outFragWorldPos = fragWrldpos.xyz;
 }

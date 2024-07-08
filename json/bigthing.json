@@ -1,0 +1,24 @@
+{
+    "Scene_Data": [
+        {
+            "Model_ID": "Large_structure",
+            "Name": "TestObject - 9Cube",
+            "Position_x": 0.0,
+            "Position_y": 0.0,
+            "Position_z": 0.0,
+            "Scale_XYZ": 0.0,
+            "Simulated": false,
+            "Static": false
+        },
+        {
+            "Model_ID": "Cartoon_House",
+            "Name": "TestObject - 10Cube",
+            "Position_x": 0.0,
+            "Position_y": 0.0,
+            "Position_z": 0.0,
+            "Scale_XYZ": 1.0,
+            "Simulated": false,
+            "Static": false
+        }
+    ]
+}

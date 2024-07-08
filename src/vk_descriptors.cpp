@@ -20,6 +20,7 @@ void DescriptorLayoutBuilder::clear()
 
 VkDescriptorSetLayout DescriptorLayoutBuilder::build(VkDevice device, VkShaderStageFlags shaderStages, void* pNext, VkDescriptorSetLayoutCreateFlags flags)
 {
+
     for (auto& b : bindings) 
     {
         b.stageFlags |= shaderStages;
@@ -69,7 +70,8 @@ VkDescriptorSetLayout DescriptorLayoutBuilder::build(VkDevice device, VkShaderSt
 //{
 //    vkDestroyDescriptorPool(device, pool, nullptr);
 //}
-//
+
+
 //VkDescriptorSet DescriptorAllocator::allocate(VkDevice device, VkDescriptorSetLayout layout)
 //{
 //    VkDescriptorSetAllocateInfo allocInfo = { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO };

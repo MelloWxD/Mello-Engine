@@ -1,27 +1,28 @@
 
 
 struct DirLight {
-    vec3 Dir;
+    vec4 Dir;
     vec4 Clr;
   
     
 };  
+struct PointLight
+{
+	vec4 Position;
+    vec4 Colour;
+	vec4 Ambient_Colour;
+};
 
 layout(set = 0, binding = 0) uniform  SceneData{   
 
 	mat4 view;
 	mat4 proj;
 	mat4 viewproj;
-	//vec4 ambientColor;
-	
-	vec4 sDir; //w for sun power
-	vec3 sClr;
-	
-	DirLight sun;	// Struct for above
 
-	//vec3 pointLightPos;
-	//vec4 pointLightAmbientClr;
-	//vec4 pointLightClr;
+	
+	DirLight sun;
+
+	PointLight light;
 	
 } sceneData;
 

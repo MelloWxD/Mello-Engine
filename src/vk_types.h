@@ -75,18 +75,32 @@ struct Vertex
     v4 color;
 };
 
+struct DirectionalLight
+{
+    //Sun / Directional Light
+    v4 sDir = v4(1, 1, -1, 1); // Sun direction xyz for direction, w for power
+    v4 sClr = v4(1); // Sun Colour RGB;
+};
 
+struct PointLight
+{
+    v4 Position = v4(0);
+    v4 Colour = v4(1,0,0,1); // xyz for rgb, w for Diffuse power
+    v4 Ambient_Colour = v4(1,0,0,1); // xyz for rgb, w for Diffuse power
+    
 
-
+};
 struct GPUSceneData 
 {
     m4 view;
     m4 proj;
     m4 viewproj;
 
-    v4 sDir = v4(1, 1, -1, 1); // Sun direction xyz for direction, w for power
-    v3 sClr = v3(1, 1, 1); // Sun Colour RGB;
+    DirectionalLight Sun;
+  
+    PointLight pLight;
 
+    
 };
 enum class MaterialPass :uint8_t {
     MainColor,
@@ -124,7 +138,7 @@ struct Node : public IRenderable {
     m4 Translation;
     m4 Rotation;
     m4 Scale;
-
+    m4 mMat = Translation * Rotation * Scale;
     v3 vTrans = v3(0);
     glm::quat qRot = { 0, 0, 0, 0 };
     v3 vScale = v3(1);
@@ -140,7 +154,6 @@ struct Node : public IRenderable {
         for (auto c : children) {
             c->refreshTransform(worldTransform);
         }
-       
     }
 
     virtual void Draw(const m4& topMatrix, DrawContext& ctx)
@@ -162,7 +175,7 @@ struct GPUMeshBuffers
 // push constants for our mesh object draws
 struct GPUDrawPushConstants 
 {
-    m4 worldMatrix;
+    m4 worldMatrix; // modelMatrix not world
     VkDeviceAddress vertexBuffer;
 };
 

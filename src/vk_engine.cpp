@@ -511,7 +511,11 @@ void VulkanEngine::run()
 				ImGui::End();
 			}
 			float sunDir[4] = { 0.f, 0.f, 0.f, 0.f };
-			float sunClr[3] = { 0.f, 0.f, 0.f};
+			float sunClr[4] = { 0.f, 0.f, 0.f};
+			
+			float plPos[3] = { 0.f, 0.f, 0.f };
+			float plClr[4] = { 0.f, 0.f, 0.f};
+			float amb[4] = { 0.f, 0.f, 0.f, 0.f};
 			if (ImGui::Begin("Shader Data"))
 			{
 				ComputeEffect& selected = backgroundEffects[currentBackgroundEffect];
@@ -528,31 +532,73 @@ void VulkanEngine::run()
 
 				ImGui::Text("Lighting Editor");
 
-				
+				// Directional Light / Sun Editor
+				{
+					sunClr[0] = sceneData.Sun.sClr.x;
+					sunClr[1] = sceneData.Sun.sClr.y;
+					sunClr[2] = sceneData.Sun.sClr.z;
 
-				sunClr[0] = sceneData.sClr.x;
-				sunClr[1] = sceneData.sClr.y;
-				sunClr[2] = sceneData.sClr.z;
+					sunDir[0] = sceneData.Sun.sDir.x;
+					sunDir[1] = sceneData.Sun.sDir.y;
+					sunDir[2] = sceneData.Sun.sDir.z;
+					sunDir[3] = sceneData.Sun.sDir.w;
 
-				sunDir[0] = sceneData.sDir.x;
-				sunDir[1] = sceneData.sDir.y;
-				sunDir[2] = sceneData.sDir.z;
-				sunDir[3] = sceneData.sDir.w;
+					ImGui::Text("Sun / Directional Light");
+
+					ImGui::DragFloat3("Sun Direction", sunDir, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+					ImGui::DragFloat("Sun Power", &sunDir[3], 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+					ImGui::DragFloat3("Sun Colour", sunClr, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+
+					sceneData.Sun.sClr.x = sunClr[0];
+					sceneData.Sun.sClr.y = sunClr[1];
+					sceneData.Sun.sClr.z = sunClr[2];
+
+					sceneData.Sun.sDir.x = sunDir[0];
+					sceneData.Sun.sDir.y = sunDir[1];
+					sceneData.Sun.sDir.z = sunDir[2];
+					sceneData.Sun.sDir.w = sunDir[3];
+				}
+
+				// Point light stuff
+				{
+					plClr[0] = sceneData.pLight.Colour.x;
+					plClr[1] = sceneData.pLight.Colour.y;
+					plClr[2] = sceneData.pLight.Colour.z;
+					plClr[3] = sceneData.pLight.Colour.w;
+					
+					amb[0] = sceneData.pLight.Ambient_Colour.x;
+					amb[1] = sceneData.pLight.Ambient_Colour.y;
+					amb[2] = sceneData.pLight.Ambient_Colour.z;
+					amb[3] = sceneData.pLight.Ambient_Colour.w;	
+
+					plPos[0] = sceneData.pLight.Position.x;
+					plPos[1] = sceneData.pLight.Position.y;
+					plPos[2] = sceneData.pLight.Position.z;
+					//sunDir[3] = sceneData.sDir.w;
+
+					ImGui::Text("Point Lights");
+					ImGui::DragFloat3("Position", plPos, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+					ImGui::DragFloat4("Colour", plClr, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+					ImGui::DragFloat4("Ambient Colour", amb, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+
+					sceneData.pLight.Colour.x = plClr[0];
+					sceneData.pLight.Colour.y = plClr[1];
+					sceneData.pLight.Colour.z = plClr[2];
+					sceneData.pLight.Colour.w = plClr[3];
+
+					sceneData.pLight.Ambient_Colour.x = amb[0];
+					sceneData.pLight.Ambient_Colour.y = amb[1];
+					sceneData.pLight.Ambient_Colour.z = amb[2];
+					sceneData.pLight.Ambient_Colour.w = amb[3];
+
+					sceneData.pLight.Position.x = plPos[0];
+					sceneData.pLight.Position.y = plPos[1];
+					sceneData.pLight.Position.z = plPos[2];
+					//sceneData.sDir.w = sunDir[3];
 
 
-				ImGui::DragFloat3("Sun Direction", sunDir, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-				ImGui::DragFloat("Sun Power", &sunDir[3], 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-				ImGui::DragFloat3("Sun Colour RGB 0-1", sunClr, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
 
-				sceneData.sClr.x = sunClr[0];
-				sceneData.sClr.y = sunClr[1];
-				sceneData.sClr.z = sunClr[2];
-
-				sceneData.sDir.x = sunDir[0];
-				sceneData.sDir.y = sunDir[1];
-				sceneData.sDir.z = sunDir[2];
-				sceneData.sDir.w = sunDir[3];
-
+				}
 				ImGui::End();
 			}
 			float dpos[3] = { 0, 0, 0 };
@@ -722,7 +768,8 @@ void VulkanEngine::run()
 							{
 								if (ImGui::Button("Attach to PLight"))
 								{
-									GO.followPlight = true;
+									GO._transform.position = sceneData.pLight.Position;
+									//GO.followPlight = true;
 								} ImGui::SameLine();
 								if (ImGui::Button("Copy GameObject"))
 								{
@@ -983,7 +1030,9 @@ void VulkanEngine::update_scene()
 	
 	auto start = std::chrono::system_clock::now();
 	mainDrawContext.OpaqueSurfaces.clear();
-	//Camera vs GameObjects.
+
+
+	// Check for collisions
 	stats.Collisions = 0;
 	if (_vGameObjects.size() > 8)
 	{
@@ -1148,6 +1197,7 @@ void VulkanEngine::update_scene()
 	
 	start = std::chrono::system_clock::now();
 
+	// Update gameobjects
 	for (auto& entry : _vGameObjects)
 	{
 
@@ -1155,6 +1205,7 @@ void VulkanEngine::update_scene()
 		if (entry._pGLTF != nullptr) entry._pGLTF->Draw(entry._modelMat, mainDrawContext);
 
 	}
+	// Update rendering matrices
 	glm::mat4 view = mainCamera.getViewMat();
 
 	// camera projection
@@ -1164,10 +1215,10 @@ void VulkanEngine::update_scene()
 	// to opengl and gltf axis
 	projection[1][1] *= -1;
 
+	// Update GPU push data
 	sceneData.view = view;
 	sceneData.proj = projection;
 	sceneData.viewproj = projection * view;
-
 
 	 end = std::chrono::system_clock::now();
 	 elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
@@ -1484,6 +1535,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd)
 		// calculate final mesh matrix
 		GPUDrawPushConstants push_constants;
 		push_constants.worldMatrix = r.transform;
+		//push_constants.modelMatrix = r.transform;
 		push_constants.vertexBuffer = r.vertexBufferAddress;
 
 		vkCmdPushConstants(cmd, r.material->pipeline->layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
@@ -1629,7 +1681,7 @@ void VulkanEngine::init_vulkan()
 	//grab the instance 
 	_instance = vkb_inst.instance;
 	_debug_messenger = vkb_inst.debug_messenger;
-
+	
 
 	// Physical Device
 	// get the surface of the window we opened with SDL
@@ -2301,6 +2353,7 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx)
 		def.material = &s.material->data;
 		def.bounds = s.bounds;
 		def.transform = nodeMatrix;
+		def.modelMat = topMatrix;
 		def.vertexBufferAddress = mesh->meshBuffers.vertexBufferAddress;
 
 		if (s.material->data.passType == MaterialPass::Transparent) {
