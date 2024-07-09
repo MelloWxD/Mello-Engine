@@ -90,6 +90,12 @@ struct PointLight
     
 
 };
+struct SpotLight
+{
+    v4 Position = v4(0,0,0,1); // w for enabled
+    v4 Direction = v4(0.f,0.f,0.f, 12.5f); // w for cut off angle /radius
+};
+constexpr uint8_t MAX_POINT_LIGHTS = 8;
 struct GPUSceneData 
 {
     m4 view;
@@ -98,8 +104,9 @@ struct GPUSceneData
 
     DirectionalLight Sun;
   
-    PointLight pLight;
+    PointLight pLights[MAX_POINT_LIGHTS];
 
+    SpotLight Torch;
     
 };
 enum class MaterialPass :uint8_t {

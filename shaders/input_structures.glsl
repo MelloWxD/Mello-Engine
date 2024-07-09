@@ -12,7 +12,11 @@ struct PointLight
     vec4 Colour;
 	vec4 Ambient_Colour;
 };
-
+struct SpotLight
+{
+    vec4 Position; // w for enabled
+    vec4 Direction; // w for cut off angle /radius
+};
 layout(set = 0, binding = 0) uniform  SceneData{   
 
 	mat4 view;
@@ -22,7 +26,9 @@ layout(set = 0, binding = 0) uniform  SceneData{
 	
 	DirLight sun;
 
-	PointLight light;
+	PointLight light[8];
+
+	SpotLight Torch;
 	
 } sceneData;
 

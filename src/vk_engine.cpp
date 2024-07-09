@@ -370,17 +370,26 @@ void VulkanEngine::run()
 				{
 					stopRendering = true;
 					bQuit = true;
+					ImGui::EndFrame();
 				}
 				if (e.key.keysym.sym == SDLK_g) // Toggle Lock the mouse when g is pressed
 				{
 					(_LockMouse) ? SDL_SetRelativeMouseMode(SDL_TRUE) : SDL_SetRelativeMouseMode(SDL_FALSE);
 					_LockMouse = !_LockMouse;
 				}
-
-				if (e.key.keysym.sym == SDLK_CAPSLOCK) // Toggle Lock the mouse when g is pressed
+				if (e.key.keysym.sym == SDLK_f) // Toggle Lock the mouse when g is pressed
 				{
-					debugwindow = !debugwindow;
+					sceneData.Torch.Position.w *= -1;
 				}
+				if (e.key.keysym.sym == SDLK_v) // Toggle Lock the mouse when g is pressed
+				{
+					(mainCamera.bNoclip) ? mainCamera.bNoclip = false : mainCamera.bNoclip = true;
+				}
+
+				//if (e.key.keysym.sym == SDLK_CAPSLOCK) // Toggle Lock the mouse when g is pressed
+				//{
+				//	debugwindow = !debugwindow;
+				//}
 			}
 			//everything else
 			auto end = std::chrono::system_clock::now();
@@ -514,7 +523,6 @@ void VulkanEngine::run()
 			float sunClr[4] = { 0.f, 0.f, 0.f};
 			
 			float plPos[3] = { 0.f, 0.f, 0.f };
-			float plClr[4] = { 0.f, 0.f, 0.f};
 			float amb[4] = { 0.f, 0.f, 0.f, 0.f};
 			if (ImGui::Begin("Shader Data"))
 			{
@@ -561,42 +569,42 @@ void VulkanEngine::run()
 
 				// Point light stuff
 				{
-					plClr[0] = sceneData.pLight.Colour.x;
-					plClr[1] = sceneData.pLight.Colour.y;
-					plClr[2] = sceneData.pLight.Colour.z;
-					plClr[3] = sceneData.pLight.Colour.w;
-					
-					amb[0] = sceneData.pLight.Ambient_Colour.x;
-					amb[1] = sceneData.pLight.Ambient_Colour.y;
-					amb[2] = sceneData.pLight.Ambient_Colour.z;
-					amb[3] = sceneData.pLight.Ambient_Colour.w;	
+					int count = 0;
+					for (PointLight& pl : sceneData.pLights)
+					{
+						count += 1;
+						if (ImGui::TreeNode(std::string("PointLight #" + std::to_string(count)).c_str()))
+						{
+							if (ImGui::Button("Put light here"))
+							{
+								pl.Position = v4(mainCamera.Position, pl.Position.w);
+							}
+							amb[0] = pl.Ambient_Colour.x;
+							amb[1] = pl.Ambient_Colour.y;
+							amb[2] = pl.Ambient_Colour.z;
+							amb[3] = pl.Ambient_Colour.w;
 
-					plPos[0] = sceneData.pLight.Position.x;
-					plPos[1] = sceneData.pLight.Position.y;
-					plPos[2] = sceneData.pLight.Position.z;
-					//sunDir[3] = sceneData.sDir.w;
+							plPos[0] = pl.Position.x;
+							plPos[1] = pl.Position.y;
+							plPos[2] = pl.Position.z;
+							//sunDir[3] = sceneData.sDir.w;
 
-					ImGui::Text("Point Lights");
-					ImGui::DragFloat3("Position", plPos, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-					ImGui::DragFloat4("Colour", plClr, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-					ImGui::DragFloat4("Ambient Colour", amb, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+							ImGui::Text("Point Lights");
+							ImGui::DragFloat3("Position", plPos, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
+							ImGui::DragFloat4("Colour", amb, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
 
-					sceneData.pLight.Colour.x = plClr[0];
-					sceneData.pLight.Colour.y = plClr[1];
-					sceneData.pLight.Colour.z = plClr[2];
-					sceneData.pLight.Colour.w = plClr[3];
+							pl.Ambient_Colour.x = amb[0];
+							pl.Ambient_Colour.y = amb[1];
+							pl.Ambient_Colour.z = amb[2];
+							pl.Ambient_Colour.w = amb[3];
 
-					sceneData.pLight.Ambient_Colour.x = amb[0];
-					sceneData.pLight.Ambient_Colour.y = amb[1];
-					sceneData.pLight.Ambient_Colour.z = amb[2];
-					sceneData.pLight.Ambient_Colour.w = amb[3];
-
-					sceneData.pLight.Position.x = plPos[0];
-					sceneData.pLight.Position.y = plPos[1];
-					sceneData.pLight.Position.z = plPos[2];
-					//sceneData.sDir.w = sunDir[3];
-
-
+							pl.Position.x = plPos[0];
+							pl.Position.y = plPos[1];
+							pl.Position.z = plPos[2];
+							//sceneData.sDir.w = sunDir[3];
+							ImGui::TreePop();
+						}
+					}
 
 				}
 				ImGui::End();
@@ -768,7 +776,7 @@ void VulkanEngine::run()
 							{
 								if (ImGui::Button("Attach to PLight"))
 								{
-									GO._transform.position = sceneData.pLight.Position;
+									GO._transform.position = sceneData.pLights[0].Position;
 									//GO.followPlight = true;
 								} ImGui::SameLine();
 								if (ImGui::Button("Copy GameObject"))
@@ -1012,7 +1020,8 @@ void VulkanEngine::run()
 			ImGui::Render();
 
 			mainCamera.update();
-
+			sceneData.Torch.Position = v4(mainCamera.Position, 1);
+			sceneData.Torch.Direction = v4(mainCamera.forward_dir(), 1);
 			//our draw function
 			update_scene();
 
@@ -1024,14 +1033,21 @@ void VulkanEngine::run()
 		}
 	}
 }
-
+float move = 0.5f;
 void VulkanEngine::update_scene()
 {
 	
 	auto start = std::chrono::system_clock::now();
 	mainDrawContext.OpaqueSurfaces.clear();
+	
 
-
+	if (sceneData.pLights[0].Position.x == 25 || sceneData.pLights[0].Position.x == -25)
+	{
+		move *= -1.f;
+	}
+	
+	sceneData.pLights[0].Position.x += move;
+	
 	// Check for collisions
 	stats.Collisions = 0;
 	if (_vGameObjects.size() > 8)

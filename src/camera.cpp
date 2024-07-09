@@ -9,7 +9,8 @@ m4 Camera::getViewMat()
     //  so we will create the camera model matrix and invert
     m4 cameraTranslation = glm::translate(m4(1.f), Position);
     m4 cameraRotation = getRotMat();
-    return glm::inverse(cameraTranslation * cameraRotation);
+    m_viewMat = glm::inverse(cameraTranslation * cameraRotation);
+    return m_viewMat;
 }
 
 m4 Camera::getRotMat()
@@ -22,14 +23,23 @@ m4 Camera::getRotMat()
     glm::quat yawRotation = glm::angleAxis(yaw, v3{ 0.f, -1.f, 0.f });
 
 
-    return glm::toMat4(yawRotation) * glm::toMat4(pitchRotation);
+    return m_RotMat = glm::toMat4(yawRotation) * glm::toMat4(pitchRotation);
 }
 
 void Camera::update()
 {
 	m4 cameraRotation = getRotMat();
+    if (bNoclip)
+    {
+        Position += v3(cameraRotation * v4(Velocity * 0.5f, 0.f));
 
-	Position += v3(cameraRotation * v4(Velocity * 0.5f, 0.f));
+    }
+    else
+    {
+        float y = Position.y;
+        Position += v3(cameraRotation * v4(Velocity * 0.5f, 0.f));
+        Position.y = y;
+    }
     _hitBox.update(Position);
 }
 
@@ -39,33 +49,34 @@ void Camera::update()
 /// <param name="e">- SDL Event</param>
 void Camera::processSDLEvents(SDL_Event& e, bool camlock)
 {
-    if (e.type == SDL_KEYDOWN)
-    {
-        float mov = 0;
-        if (e.key.keysym.sym == SDLK_LSHIFT) { isQuick = true; }
-        (isQuick) ? mov = quickSpeed : mov = moveSpeed;
+   
+        if (e.type == SDL_KEYDOWN)
+        {
+            float mov = 0;
+            if (e.key.keysym.sym == SDLK_LSHIFT) { isQuick = true; }
+            (isQuick) ? mov = quickSpeed : mov = moveSpeed;
 
-        if (e.key.keysym.sym == SDLK_w) { Velocity.z = -mov; }
-        if (e.key.keysym.sym == SDLK_s) { Velocity.z = mov; }
-        if (e.key.keysym.sym == SDLK_SPACE) { Velocity.y = 1; }
+            if (e.key.keysym.sym == SDLK_w) { Velocity.z = -mov; }
+            if (e.key.keysym.sym == SDLK_s) { Velocity.z = mov; }
+            if (e.key.keysym.sym == SDLK_SPACE) { Velocity.y = 1; }
 
-        if (e.key.keysym.sym == SDLK_LCTRL) { Velocity.y = -1; }
+            if (e.key.keysym.sym == SDLK_LCTRL) { Velocity.y = -1; }
 
-        if (e.key.keysym.sym == SDLK_a) { Velocity.x = -mov; }
-        if (e.key.keysym.sym == SDLK_d) { Velocity.x = mov; }
-    }
+            if (e.key.keysym.sym == SDLK_a) { Velocity.x = -mov; }
+            if (e.key.keysym.sym == SDLK_d) { Velocity.x = mov; }
+        }
 
-    if (e.type == SDL_KEYUP) {
-        if (e.key.keysym.sym == SDLK_w) { Velocity.z = 0; }
-        if (e.key.keysym.sym == SDLK_s) { Velocity.z = 0; }
-        if (e.key.keysym.sym == SDLK_SPACE) { Velocity.y = 0; }
-        if (e.key.keysym.sym == SDLK_LCTRL) { Velocity.y = 0; }
-        if (e.key.keysym.sym == SDLK_LSHIFT) { isQuick = false; }
+        if (e.type == SDL_KEYUP) {
+            if (e.key.keysym.sym == SDLK_w) { Velocity.z = 0; }
+            if (e.key.keysym.sym == SDLK_s) { Velocity.z = 0; }
+            if (e.key.keysym.sym == SDLK_SPACE) { Velocity.y = 0; }
+            if (e.key.keysym.sym == SDLK_LCTRL) { Velocity.y = 0; }
+            if (e.key.keysym.sym == SDLK_LSHIFT) { isQuick = false; }
 
-        if (e.key.keysym.sym == SDLK_a) { Velocity.x = 0; }
-        if (e.key.keysym.sym == SDLK_d) { Velocity.x = 0; }
-    }
-
+            if (e.key.keysym.sym == SDLK_a) { Velocity.x = 0; }
+            if (e.key.keysym.sym == SDLK_d) { Velocity.x = 0; }
+        }
+  
     if (camlock)
     {
         return;
@@ -75,5 +86,4 @@ void Camera::processSDLEvents(SDL_Event& e, bool camlock)
         yaw += (float)e.motion.xrel / 200.f;
         pitch -= (float)e.motion.yrel / 200.f;
     }
-
 }

@@ -668,7 +668,39 @@ void read_assetDataJson(VulkanEngine* engine, const char* path)
     }
 
 }
+// Json stuff
+v3 getVec3(const rapidjson::Value& data_set, std::string Name, int index)
+{
+    float x, y, z;
+    x = data_set[index][(Name + "_x").c_str()].GetFloat();
+    y = data_set[index][(Name + "_y").c_str()].GetFloat();
+    z = data_set[index][(Name + "_z").c_str()].GetFloat();
 
+    
+    return v3(x,y,z);
+}
+v4 getVec4(const rapidjson::Value& data_set, std::string Name, int index)
+{
+    float x, y, z, w;
+    x = data_set[index][(Name + "_x").c_str()].GetFloat();
+    y = data_set[index][(Name + "_y").c_str()].GetFloat();
+    z = data_set[index][(Name + "_z").c_str()].GetFloat();
+    w = data_set[index][(Name + "_w").c_str()].GetFloat();
+
+    
+    return v4(x,y,z, w);
+}
+
+v3 getVec3Multi(const rapidjson::Value& data_set, std::string Name, int index, int count)
+{
+    float x, y, z;
+    x = data_set[index][(Name + "_x_" + std::to_string(count)).c_str()].GetFloat();
+    y = data_set[index][(Name + "_y_" + std::to_string(count)).c_str()].GetFloat();
+    z = data_set[index][(Name + "_z_" + std::to_string(count)).c_str()].GetFloat();
+
+    
+    return v3(x,y,z);
+}
 void read_sceneJson(VulkanEngine* engine, const char* path)
 {
     using namespace rapidjson;
@@ -710,12 +742,14 @@ void read_sceneJson(VulkanEngine* engine, const char* path)
     {
         std::string m_id = data_set[i]["Model_ID"].GetString();
         std::string name = data_set[i]["Name"].GetString();
-        v3 pos = { data_set[i]["Position_x"].GetFloat(), data_set[i]["Position_y"].GetFloat(), data_set[i]["Position_z"].GetFloat() };
-        v3 scale = v3(data_set[i]["Scale_XYZ"].GetFloat());
+        v3 pos = getVec3(data_set, "Position", i);
+        v3 rot = getVec3(data_set, "Rotation", i);
+        v3 scale = getVec3(data_set, "Scale", i);
         bool sim = data_set[i]["Simulated"].GetBool();
         bool stat = data_set[i]["Static"].GetBool();
         GameObject go;
         go._transform.position = pos;
+        go._transform.rotation = rot;
         go._transform.scale = scale;
         go._simulate = sim;
         go._static = stat;
@@ -725,6 +759,22 @@ void read_sceneJson(VulkanEngine* engine, const char* path)
 
     }
 
+    //Lighting info
+    const Value& data_set_lights = doc["Scene_Light_Data"];
+    if (!data_set_lights.IsArray())
+    {
+        printf("Failed to load %s", path);
+        return;
+    }
+    for (size_t i = 0; i < data_set_lights.Size(); ++i)
+    {
+        
+        v4 pos = getVec4(data_set_lights, "PointL_pos", i);
+        v4 clr = getVec4(data_set_lights, "PointL_clr", i);
+        engine->sceneData.pLights[i].Position = pos;
+        engine->sceneData.pLights[i].Colour = clr;
+
+    }
 }
 
 void read_hitboxJson(VulkanEngine* engine, const char* path)
@@ -776,32 +826,32 @@ void read_hitboxJson(VulkanEngine* engine, const char* path)
             float f;
             std::string s = "Extent_";
             s += std::to_string(x) += "_x";
-            f = data_set[i][s.c_str()].GetDouble();
+            f = data_set[i][s.c_str()].GetFloat();
             s = "Extent_";
             ex.x = f; 
             
             s += std::to_string(x) += "_y";
-            f = data_set[i][s.c_str()].GetDouble();
+            f = data_set[i][s.c_str()].GetFloat();
             s = "Extent_";
             ex.y = f; 
             
             s += std::to_string(x) += "_z";
-            f = data_set[i][s.c_str()].GetDouble();
+            f = data_set[i][s.c_str()].GetFloat();
             s = "Centre_";
             ex.z = f;
 
             s += std::to_string(x) += "_x";
-            f = data_set[i][s.c_str()].GetDouble();
+            f = data_set[i][s.c_str()].GetFloat();
             s = "Centre_";
             off.x = f;
 
             s += std::to_string(x) += "_y";
-            f = data_set[i][s.c_str()].GetDouble();
+            f = data_set[i][s.c_str()].GetFloat();
             s = "Centre_";
             off.y = f; 
             
             s += std::to_string(x) += "_z";
-            f = data_set[i][s.c_str()].GetDouble();
+            f = data_set[i][s.c_str()].GetFloat();
             s = "Centre_";
             off.z = f;
             engine->savedHitboxData[m_id].push_back(std::pair<v3, v3>(ex, off));
@@ -825,6 +875,7 @@ bool write_sceneJson(VulkanEngine* engine, std::string path)
     Pwriter.Key("Scene_Data"); // top label
     Pwriter.StartArray();
 
+    // Game objects
     for (int x = 8; x < engine->_vGameObjects.size(); ++x)
     {
         auto& GO = engine->_vGameObjects[x];
@@ -841,8 +892,22 @@ bool write_sceneJson(VulkanEngine* engine, std::string path)
         Pwriter.Key("Position_z");
         Pwriter.Double((double)GO._transform.position.z);
 
-        Pwriter.Key("Scale_XYZ");
-        Pwriter.Double((double)GO.scale.y);
+
+        Pwriter.Key("Rotation_x");
+        Pwriter.Double((double)GO._transform.rotation.x);
+        Pwriter.Key("Rotation_y");
+        Pwriter.Double((double)GO._transform.rotation.y);
+        Pwriter.Key("Rotation_z");
+        Pwriter.Double((double)GO._transform.rotation.z);
+
+
+        Pwriter.Key("Scale_x");
+        Pwriter.Double((double)GO._transform.scale.x);
+        Pwriter.Key("Scale_y");
+        Pwriter.Double((double)GO._transform.scale.y);
+        Pwriter.Key("Scale_z");
+        Pwriter.Double((double)GO._transform.scale.z);
+       
 
         Pwriter.Key("Simulated");
         Pwriter.Bool(GO._simulate);
@@ -851,6 +916,47 @@ bool write_sceneJson(VulkanEngine* engine, std::string path)
 
         Pwriter.EndObject();
     }
+    Pwriter.EndArray();
+
+    Pwriter.Key("Scene_Light_Data"); // top label
+    // lighting
+    Pwriter.StartArray();
+
+    for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
+    {
+        PointLight& pl = engine->sceneData.pLights[i];
+        Pwriter.StartObject();
+
+        Pwriter.Key("PointL_pos_x");
+        Pwriter.Double((double)pl.Position.x);
+        
+        Pwriter.Key("PointL_pos_y");
+        Pwriter.Double((double)pl.Position.y);
+        
+        Pwriter.Key("PointL_pos_z");
+        Pwriter.Double((double)pl.Position.z);
+       
+        Pwriter.Key("PointL_pos_w");
+        Pwriter.Double((double)pl.Position.w);
+       
+
+        Pwriter.Key("PointL_clr_x");
+        Pwriter.Double((double)pl.Ambient_Colour.x);
+
+        Pwriter.Key("PointL_clr_y");
+        Pwriter.Double((double)pl.Ambient_Colour.y);
+
+        Pwriter.Key("PointL_clr_z");
+        Pwriter.Double((double)pl.Ambient_Colour.z);
+
+        Pwriter.Key("PointL_clr_w");
+        Pwriter.Double((double)pl.Ambient_Colour.w);
+
+        Pwriter.EndObject();
+
+
+    }
+
     Pwriter.EndArray();
     Pwriter.EndObject();
     std::string data = s.GetString();
