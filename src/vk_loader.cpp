@@ -772,7 +772,7 @@ void read_sceneJson(VulkanEngine* engine, const char* path)
         v4 pos = getVec4(data_set_lights, "PointL_pos", i);
         v4 clr = getVec4(data_set_lights, "PointL_clr", i);
         engine->sceneData.pLights[i].Position = pos;
-        engine->sceneData.pLights[i].Colour = clr;
+        engine->sceneData.pLights[i].Ambient_Colour = clr;
 
     }
 }
@@ -826,32 +826,32 @@ void read_hitboxJson(VulkanEngine* engine, const char* path)
             float f;
             std::string s = "Extent_";
             s += std::to_string(x) += "_x";
-            f = data_set[i][s.c_str()].GetFloat();
+            f = data_set[i][s.c_str()].GetDouble();
             s = "Extent_";
             ex.x = f; 
             
             s += std::to_string(x) += "_y";
-            f = data_set[i][s.c_str()].GetFloat();
+            f = data_set[i][s.c_str()].GetDouble();
             s = "Extent_";
             ex.y = f; 
             
             s += std::to_string(x) += "_z";
-            f = data_set[i][s.c_str()].GetFloat();
+            f = data_set[i][s.c_str()].GetDouble();
             s = "Centre_";
             ex.z = f;
 
             s += std::to_string(x) += "_x";
-            f = data_set[i][s.c_str()].GetFloat();
+            f = data_set[i][s.c_str()].GetDouble();
             s = "Centre_";
             off.x = f;
 
             s += std::to_string(x) += "_y";
-            f = data_set[i][s.c_str()].GetFloat();
+            f = data_set[i][s.c_str()].GetDouble();
             s = "Centre_";
             off.y = f; 
             
             s += std::to_string(x) += "_z";
-            f = data_set[i][s.c_str()].GetFloat();
+            f = data_set[i][s.c_str()].GetDouble();
             s = "Centre_";
             off.z = f;
             engine->savedHitboxData[m_id].push_back(std::pair<v3, v3>(ex, off));

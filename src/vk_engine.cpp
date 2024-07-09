@@ -1053,69 +1053,72 @@ void VulkanEngine::update_scene()
 	if (_vGameObjects.size() > 8)
 	{
 		// camera vs Gameobject collisions
-		for (int i = 8; i < _vGameObjects.size(); ++i)
+		if (!mainCamera.bNoclip)
 		{
-			GameObject* objL = &_vGameObjects[i];
-			if (objL->getCollidable() == false || mainCamera.noclip == true)
+			for (int i = 8; i < _vGameObjects.size(); ++i)
 			{
-				continue; // go to next item
-			}
-			Simplex s;
-			int T_idx = 0; // For knowing which tetrahedron inside the obb the collision was detected on
-			for (auto& lOBB : objL->_vOBB)
-			{
-				if (GJK::GJK(lOBB, mainCamera._hitBox, s, T_idx))
+				GameObject* objL = &_vGameObjects[i];
+				if (objL->getCollidable() == false || mainCamera.noclip == true)
 				{
-
-					stats.Collisions += 1;
-
-					CollisionInfo colinfo = EPA(s, &lOBB, &mainCamera._hitBox, T_idx);
-
-					if (colinfo.penDepth < 0.03)
+					continue; // go to next item
+				}
+				Simplex s;
+				int T_idx = 0; // For knowing which tetrahedron inside the obb the collision was detected on
+				for (auto& lOBB : objL->_vOBB)
+				{
+					if (GJK::GJK(lOBB, mainCamera._hitBox, s, T_idx))
 					{
-						colinfo.penDepth = 0.00f;
-					}
-					if (std::isnan(colinfo.penDepth))
-					{
-						colinfo.penDepth = 0;
-					}
-					int biggestIdx = 0;
-					float max = -FLT_MAX;
-					for (int y = 0; y < 3; ++y)
-					{
-						if (std::isnan(colinfo.Normal[y]))
+
+						stats.Collisions += 1;
+
+						CollisionInfo colinfo = EPA(s, &lOBB, &mainCamera._hitBox, T_idx);
+
+						if (colinfo.penDepth < 0.03)
 						{
-							colinfo.Normal[y] = 0;
-							break;
+							colinfo.penDepth = 0.00f;
 						}
-						colinfo.Normal[y] = fabs(colinfo.Normal[y]);
-
-					}
-
-					v3 DxDir = v3(0);
-					DxDir[biggestIdx] = colinfo.Normal[biggestIdx]; // Single element response movement normal pointing from B - A
-
-					v3 Dpos = glm::normalize(colinfo.Normal) * colinfo.penDepth;
-					v3 diffVec = glm::normalize(lOBB.c - mainCamera._hitBox.c);
-
-					for (int y = 0; y < 3; ++y)
-					{
-						if (diffVec[y] < 0) // Obj is either on the right of player or behind
+						if (std::isnan(colinfo.penDepth))
 						{
-							Dpos[y] *= -1;
+							colinfo.penDepth = 0;
+						}
+						int biggestIdx = 0;
+						float max = -FLT_MAX;
+						colinfo.Normal.y = 0;
+						for (int y = 0; y < 3; ++y)
+						{
+							if (std::isnan(colinfo.Normal[y]))
+							{
+								colinfo.Normal[y] = 0;
+								break;
+							}
+							colinfo.Normal[y] = fabs(colinfo.Normal[y]);
 
 						}
-					}
 
-					
-					
-					mainCamera.Position -= (Dpos);
-					
-					//printf("Colliding with Object - %s  No %d\n", objR->GetModelID().c_str(), i);
+						v3 DxDir = v3(0);
+						DxDir[biggestIdx] = colinfo.Normal[biggestIdx]; // Single element response movement normal pointing from B - A
+
+						v3 Dpos = glm::normalize(colinfo.Normal) * colinfo.penDepth;
+						v3 diffVec = glm::normalize(lOBB.c - mainCamera._hitBox.c);
+
+						for (int y = 0; y < 3; ++y)
+						{
+							if (diffVec[y] < 0) // Obj is either on the right of player or behind
+							{
+								Dpos[y] *= -1;
+
+							}
+						}
+
+
+
+						mainCamera.Position -= (Dpos);
+
+						//printf("Colliding with Object - %s  No %d\n", objR->GetModelID().c_str(), i);
+					}
 				}
 			}
 		}
-
 		// Game objects vs Game ojbects collisions
 		for (int i = 8; i < _vGameObjects.size(); ++i)
 		{
