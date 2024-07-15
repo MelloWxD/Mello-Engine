@@ -379,7 +379,7 @@ void VulkanEngine::run()
 				}
 				if (e.key.keysym.sym == SDLK_f) // Toggle Lock the mouse when g is pressed
 				{
-					sceneData.Torch.Position.w *= -1;
+					//sceneData.Torch.Position.w *= -1;
 				}
 				if (e.key.keysym.sym == SDLK_v) // Toggle Lock the mouse when g is pressed
 				{
@@ -438,6 +438,8 @@ void VulkanEngine::run()
 		ImGui::NewFrame();
 		if (debugwindow)
 		{
+			auto& _vGameObjects = defaultScene.getSceneObjects();
+			auto& sceneData = defaultScene.getShaderData();
 			// Camera Window
 			{
 				ImGui::Begin("Camera");
@@ -472,7 +474,7 @@ void VulkanEngine::run()
 				ImGui::Begin("Scene saver");
 				if (ImGui::Button("New"))
 				{
-					_vGameObjects.clear();
+					defaultScene.getSceneObjects().clear();
 					createDebugSpheres();
 
 				}
@@ -490,9 +492,9 @@ void VulkanEngine::run()
 						{
 							if (ImGui::Button(entry.path().filename().string().c_str()))
 							{
-								_vGameObjects.clear();
+								defaultScene.getSceneObjects().clear();
 								createDebugSpheres();
-								read_sceneJson(this, entry.path().string().c_str());
+								//read_sceneJson(this, entry.path().string().c_str());
 							}
 						}
 
@@ -1034,19 +1036,15 @@ void VulkanEngine::run()
 	}
 }
 float move = 0.5f;
+
 void VulkanEngine::update_scene()
 {
 	
 	auto start = std::chrono::system_clock::now();
 	mainDrawContext.OpaqueSurfaces.clear();
 	
-
-	if (sceneData.pLights[0].Position.x == 25 || sceneData.pLights[0].Position.x == -25)
-	{
-		move *= -1.f;
-	}
-	
-	sceneData.pLights[0].Position.x += move;
+	auto& _vGameObjects = defaultScene.getSceneObjects();
+	auto& sceneData = defaultScene.getShaderData();
 	
 	// Check for collisions
 	stats.Collisions = 0;
@@ -1468,7 +1466,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd)
 	stats.triangle_count = 0;
 	//begin clock
 	auto start = std::chrono::system_clock::now();
-
+	auto sceneData = defaultScene.getShaderData();
 
 	std::vector<uint32_t> opaque_draws;
 	opaque_draws.reserve(mainDrawContext.OpaqueSurfaces.size());
@@ -2094,7 +2092,7 @@ void VulkanEngine::createDebugSpheres()
 		go._modelMat = m4(1);
 		go.Name = "DebugSphere - " + std::to_string(x);
 		go.canCollide = false;
-		_vGameObjects.push_back(go);
+		defaultScene.getSceneObjects().push_back(go);
 	}
 }
 void VulkanEngine::init_default_data() 
@@ -2180,8 +2178,7 @@ void VulkanEngine::init_renderables()
 
 	read_hitboxJson(this, "..\\json\\hitbox_sizes.json");
 
-	
-	read_sceneJson(this, "..\\json\\test.json");
+	read_sceneJson(this, defaultScene.getSceneObjects(), defaultScene.getShaderData(), "..\\json\\test.json"); // fils out defaultScene
 
 }
 void VulkanEngine::init_pipelines()

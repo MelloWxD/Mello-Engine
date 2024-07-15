@@ -5,7 +5,7 @@
 #include <vk_descriptors.h>
 #include <vk_images.h>
 #include <filesystem>
-
+class GameObject;
 class VulkanEngine;
 struct LoadedGLTF : public IRenderable {
 
@@ -42,7 +42,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine, std::s
 
 void read_assetDataJson(VulkanEngine* engine, const char* path);
 
-void read_sceneJson(VulkanEngine* engine, const char* path);
+void read_sceneJson(VulkanEngine* engine, std::vector<GameObject>& gObjs, GPUSceneData& sceneData, const char* path);
 
 void read_hitboxJson(VulkanEngine* engine, const char* path);
 

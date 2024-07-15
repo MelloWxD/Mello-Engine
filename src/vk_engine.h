@@ -29,7 +29,7 @@
 #include <CollisionHandler.h>
 
 
-#include "GameObject.h"
+#include <Scene.h>
 
 
 struct GLTFMetallic_Roughness {
@@ -104,7 +104,12 @@ public:
 	void update_scene();
 	std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedGLTFs;
 	std::unordered_map<std::string, std::shared_ptr<Node>> loadedNodes;
-	std::vector<GameObject> _vGameObjects;
+
+	//std::vector<GameObject> _vGameObjects;
+
+	Scene defaultScene;
+
+
 	Camera mainCamera;
 	float sDTime;
 	AllocatedImage create_image(VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped = false);
@@ -171,7 +176,7 @@ public:
 	VkDescriptorSetLayout _singleImageDescriptorLayout;
 
 
-	GPUSceneData sceneData;
+	//GPUSceneData sceneData;
 	VkDescriptorSetLayout _gpuSceneDataDescriptorLayout;
 
 	//Pipelines

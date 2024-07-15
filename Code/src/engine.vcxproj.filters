@@ -32,6 +32,9 @@
     <ClCompile Include="..\..\src\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="F:\MelloEngine\src\vk_types.h">
@@ -73,6 +76,9 @@
     <ClInclude Include="..\..\src\CollisionHandler.h" />
     <ClInclude Include="..\..\src\ColliderShapes.h" />
     <ClInclude Include="..\..\src\GameObject.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Scene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

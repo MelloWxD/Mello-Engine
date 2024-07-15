@@ -701,7 +701,82 @@ v3 getVec3Multi(const rapidjson::Value& data_set, std::string Name, int index, i
     
     return v3(x,y,z);
 }
-void read_sceneJson(VulkanEngine* engine, const char* path)
+//void read_sceneJson(VulkanEngine* engine, const char* path)
+//{
+//    using namespace rapidjson;
+//    FILE* file_pointer = fopen(path, "rb");
+//
+//    if (file_pointer == nullptr && "Unable to read open JSON file.")
+//    {
+//        printf("Failed to load %s", path);
+//
+//        return;
+//    }
+//    char readBuffer[65536];
+//    FileReadStream is(file_pointer, readBuffer, sizeof(readBuffer));
+//
+//    Document doc;
+//    doc.ParseStream(is);
+//    if (doc.HasParseError())
+//    {
+//        printf("Failed to load json");
+//        return;
+//    }
+//
+//    fclose(file_pointer);
+//
+//    if (!kParseErrorDocumentEmpty)
+//    {
+//        printf("Failed to load %s", path);
+//        return;
+//    }
+//
+//    const Value& data_set = doc["Scene_Data"];
+//    if (!data_set.IsArray())
+//    {
+//        printf("Failed to load %s", path);
+//        return;
+//    }
+//
+//    for (size_t i = 0; i < data_set.Size(); ++i)
+//    {
+//        std::string m_id = data_set[i]["Model_ID"].GetString();
+//        std::string name = data_set[i]["Name"].GetString();
+//        v3 pos = getVec3(data_set, "Position", i);
+//        v3 rot = getVec3(data_set, "Rotation", i);
+//        v3 scale = getVec3(data_set, "Scale", i);
+//        bool sim = data_set[i]["Simulated"].GetBool();
+//        bool stat = data_set[i]["Static"].GetBool();
+//        GameObject go;
+//        go._transform.position = pos;
+//        go._transform.rotation = rot;
+//        go._transform.scale = scale;
+//        go._simulate = sim;
+//        go._static = stat;
+//        go._pGLTF = engine->loadedGLTFs[m_id];
+//        go.Name = name;
+//        engine->_vGameObjects.push_back(go);
+//
+//    }
+//
+//    //Lighting info
+//    const Value& data_set_lights = doc["Scene_Light_Data"];
+//    if (!data_set_lights.IsArray())
+//    {
+//        printf("Failed to load %s", path);
+//        return;
+//    }
+//    for (size_t i = 0; i < data_set_lights.Size(); ++i)
+//    {
+//        
+//        v4 pos = getVec4(data_set_lights, "PointL_pos", i);
+//        v4 clr = getVec4(data_set_lights, "PointL_clr", i);
+//        engine->sceneData.pLights[i].Position = pos;
+//        engine->sceneData.pLights[i].Ambient_Colour = clr;
+//
+//    }
+//}
+void read_sceneJson(VulkanEngine* engine, std::vector<GameObject>& gObjs, GPUSceneData& sceneData, const char* path)
 {
     using namespace rapidjson;
     FILE* file_pointer = fopen(path, "rb");
@@ -755,7 +830,8 @@ void read_sceneJson(VulkanEngine* engine, const char* path)
         go._static = stat;
         go._pGLTF = engine->loadedGLTFs[m_id];
         go.Name = name;
-        engine->_vGameObjects.push_back(go);
+        //engine->_vGameObjects.push_back(go);
+        gObjs.push_back(go);
 
     }
 
@@ -768,15 +844,17 @@ void read_sceneJson(VulkanEngine* engine, const char* path)
     }
     for (size_t i = 0; i < data_set_lights.Size(); ++i)
     {
-        
+
         v4 pos = getVec4(data_set_lights, "PointL_pos", i);
         v4 clr = getVec4(data_set_lights, "PointL_clr", i);
-        engine->sceneData.pLights[i].Position = pos;
-        engine->sceneData.pLights[i].Ambient_Colour = clr;
+        //engine->sceneData.pLights[i].Position = pos;
+        //engine->sceneData.pLights[i].Ambient_Colour = clr; 
+        
+        sceneData.pLights[i].Position = pos;
+        sceneData.pLights[i].Ambient_Colour = clr;
 
     }
 }
-
 void read_hitboxJson(VulkanEngine* engine, const char* path)
 {
     using namespace rapidjson;
@@ -874,11 +952,12 @@ bool write_sceneJson(VulkanEngine* engine, std::string path)
     Pwriter.StartObject();
     Pwriter.Key("Scene_Data"); // top label
     Pwriter.StartArray();
-
+    auto _vGameObjects = engine->defaultScene.getSceneObjects();
+    auto sceneData = engine->defaultScene.getShaderData();
     // Game objects
-    for (int x = 8; x < engine->_vGameObjects.size(); ++x)
+    for (int x = 8; x < _vGameObjects.size(); ++x)
     {
-        auto& GO = engine->_vGameObjects[x];
+        auto& GO = _vGameObjects[x];
         Pwriter.StartObject();
         Pwriter.Key("Model_ID");
         Pwriter.String(GO.m_id.c_str());
@@ -924,7 +1003,7 @@ bool write_sceneJson(VulkanEngine* engine, std::string path)
 
     for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
-        PointLight& pl = engine->sceneData.pLights[i];
+        PointLight& pl = sceneData.pLights[i];
         Pwriter.StartObject();
 
         Pwriter.Key("PointL_pos_x");
@@ -990,10 +1069,11 @@ bool write_hitboxJson(VulkanEngine* engine, std::string path)
     Pwriter.StartObject();
     Pwriter.Key("Hitbox_Data"); // top label
     Pwriter.StartArray();
+    auto _vGameObjects = engine->defaultScene.getSceneObjects();
 
-    for (int x = 8; x < engine->_vGameObjects.size(); ++x)
+    for (int x = 8; x < _vGameObjects.size(); ++x)
     {
-        auto& GO = engine->_vGameObjects[x];
+        auto& GO = _vGameObjects[x];
         int hbCount = GO._vOBB.size();
         Pwriter.StartObject();
         Pwriter.Key("Model_ID");
