@@ -29,105 +29,8 @@
 #include <CollisionHandler.h>
 
 
-class GameObject
-{
-public:
-	GameObject()
-	{
+#include "GameObject.h"
 
-	}
-	~GameObject()
-	{
-		_vOBB.clear();
-		_pGLTF = nullptr;
-	}
-	void Update();
-
-	void updateModelMat()
-	{
-		if (_simulate)
-		{
-			_transform.position.y -= 9.8f * 0.001f;
-		}
-		_transform.position += velocity;
-		_transform.rotation.x += rot_velocity.x;
-		_transform.rotation.y += rot_velocity.y;
-		_transform.rotation.z += rot_velocity.z;
-		_modelMat = glm::translate(_transform.position) * glm::rotate(_transform.rotation.x, v3(1, 0, 0)) * glm::rotate(_transform.rotation.y, v3(0, 1, 0)) * glm::rotate(_transform.rotation.z, v3(0, 0, 1)) * glm::scale(_transform.scale);
-		this->_pGLTF->topNodes;
-	}
-
-	const bool getCollidable()
-	{
-		return canCollide;
-	}
-
-	m4 _modelMat = m4(1.f);
-	Transform _transform;
-	v3 pos, scale = v3(0);
-	v3 rot_velocity = v3(0);
-	v3 velocity = v3(0);
-	bool followPlight = false;
-	std::string m_id = "Cube"; // box by default
-	//ColliderShapes::ColliderTypes _colliderType;
-	std::vector<OBB> _vOBB;
-	int _numColliders = 1;
-	bool canCollide = true;
-	bool _simulate = false;
-	bool _static = false;
-	glm::quat rot = { 0, 0, 0, 0 };
-	std::string Name = "Unnammed";
-	std::shared_ptr<LoadedGLTF> _pGLTF;
-};
-
-
-struct ComputePushConstants
-{
-	glm::vec4 data1;
-	glm::vec4 data2;
-	glm::vec4 data3;
-	glm::vec4 data4;
-};
-struct DeletionQueue
-{
-	std::deque<std::function<void()>> deletors;
-
-	void push_function(std::function<void()>&& function)
-	{
-		deletors.push_back(function);
-	}
-
-	void flush()
-	{
-		// reverse iterate the deletion queue to execute all the functions
-		for (auto it = deletors.rbegin(); it != deletors.rend(); it++)
-		{
-			(*it)(); //call functors
-		}
-
-		deletors.clear();
-	}
-};
-struct ComputeEffect {
-	const char* name;
-
-	VkPipeline pipeline;
-	VkPipelineLayout layout;
-
-	ComputePushConstants data;
-};
-struct FrameData 
-{
-	VkCommandPool _commandPool;
-	VkCommandBuffer _mainCommandBuffer;
-
-	VkSemaphore _swapchainSemaphore, _renderSemaphore;
-	VkFence _renderFence;
-
-	DeletionQueue _deletionQueue;
-	DescriptorAllocatorGrowable _frameDescriptors;
-};
-constexpr unsigned int FRAME_OVERLAP = 2;
 
 struct GLTFMetallic_Roughness {
 	MaterialPipeline opaquePipeline;
@@ -158,42 +61,7 @@ struct GLTFMetallic_Roughness {
 
 	MaterialInstance write_material(VkDevice device, MaterialPass pass, const MaterialResources& resources, DescriptorAllocatorGrowable& descriptorAllocator);
 };
-class GameObject;
 
-struct EngineStats 
-{
-	int FPS = 0;
-	int Collisions = 0;
-	float frametime;
-	float TotalTimeInSeconds = 0.f;
-	int triangle_count;
-	int drawcall_count;
-	float scene_update_time;
-	float col_resolve_time;
-	float mesh_draw_time;
-};
-struct RenderObject {
-	uint32_t indexCount;
-	uint32_t firstIndex;
-	VkBuffer indexBuffer;
-
-	MaterialInstance* material;
-	Bounds bounds;
-	m4 transform;
-	m4 modelMat;
-	VkDeviceAddress vertexBufferAddress;
-};
-struct DrawContext 
-{
-	std::vector<RenderObject> OpaqueSurfaces;
-	std::vector<RenderObject> TransparentSurfaces;
-};
-struct MeshNode : public Node {
-
-	std::shared_ptr<MeshAsset> mesh;
-
-	virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
-};
 
 
 class VulkanEngine {

@@ -2387,16 +2387,4 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx)
 	Node::Draw(topMatrix, ctx);
 }
 
-void GameObject::Update()
-{
-	// Update Model Mat
-	updateModelMat();
 
-	// Update Hitboxes
-	for (auto& hb : _vOBB) 
-	{
-		hb.update(_transform, _modelMat);
-	}
-
-
-}

@@ -212,3 +212,75 @@ struct MeshAsset
     GPUMeshBuffers meshBuffers;
 };
 
+struct ComputePushConstants
+{
+    glm::vec4 data1;
+    glm::vec4 data2;
+    glm::vec4 data3;
+    glm::vec4 data4;
+};
+struct DeletionQueue
+{
+    std::deque<std::function<void()>> deletors;
+
+    void push_function(std::function<void()>&& function)
+    {
+        deletors.push_back(function);
+    }
+
+    void flush()
+    {
+        // reverse iterate the deletion queue to execute all the functions
+        for (auto it = deletors.rbegin(); it != deletors.rend(); it++)
+        {
+            (*it)(); //call functors
+        }
+
+        deletors.clear();
+    }
+};
+struct ComputeEffect {
+    const char* name;
+
+    VkPipeline pipeline;
+    VkPipelineLayout layout;
+
+    ComputePushConstants data;
+};
+
+constexpr unsigned int FRAME_OVERLAP = 2;
+
+struct EngineStats
+{
+    int FPS = 0;
+    int Collisions = 0;
+    float frametime;
+    float TotalTimeInSeconds = 0.f;
+    int triangle_count;
+    int drawcall_count;
+    float scene_update_time;
+    float col_resolve_time;
+    float mesh_draw_time;
+};
+struct RenderObject {
+    uint32_t indexCount;
+    uint32_t firstIndex;
+    VkBuffer indexBuffer;
+
+    MaterialInstance* material;
+    Bounds bounds;
+    m4 transform;
+    m4 modelMat;
+    VkDeviceAddress vertexBufferAddress;
+};
+struct DrawContext
+{
+    std::vector<RenderObject> OpaqueSurfaces;
+    std::vector<RenderObject> TransparentSurfaces;
+};
+struct MeshNode : public Node {
+
+    std::shared_ptr<MeshAsset> mesh;
+
+    virtual void Draw(const glm::mat4& topMatrix, DrawContext& ctx) override;
+};

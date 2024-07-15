@@ -70,3 +70,14 @@ struct DescriptorWriter
 	void clear();
 	void update_set(VkDevice device, VkDescriptorSet set);
 };
+struct FrameData
+{
+	VkCommandPool _commandPool;
+	VkCommandBuffer _mainCommandBuffer;
+
+	VkSemaphore _swapchainSemaphore, _renderSemaphore;
+	VkFence _renderFence;
+
+	DeletionQueue _deletionQueue;
+	DescriptorAllocatorGrowable _frameDescriptors;
+};

@@ -390,6 +390,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\CollisionHandler.cpp" />
+    <ClCompile Include="..\..\src\GameObject.cpp" />
     <ClCompile Include="F:\MelloEngine\Code\src\CMakeFiles\engine.dir\cmake_pch.cxx">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">F:/MelloEngine/Code/src/CMakeFiles/engine.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -416,6 +417,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ClInclude Include="..\..\src\ColliderShapes.h" />
     <ClInclude Include="..\..\src\CollisionHandler.h" />
+    <ClInclude Include="..\..\src\GameObject.h" />
     <ClInclude Include="F:\MelloEngine\src\vk_types.h" />
     <ClCompile Include="F:\MelloEngine\src\vk_initializers.cpp">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">F:/MelloEngine/Code/src/CMakeFiles/engine.dir/Debug/cmake_pch.hxx;%(ForcedIncludeFiles)</ForcedIncludeFiles>
