@@ -107,6 +107,7 @@ public:
 
 	//std::vector<GameObject> _vGameObjects;
 
+	std::vector<Scene> _Scenes;
 	Scene defaultScene;
 
 

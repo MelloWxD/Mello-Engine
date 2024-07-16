@@ -55,7 +55,8 @@ VkSamplerMipmapMode extract_mipmap_mode(fastgltf::Filter filter)
         return VK_SAMPLER_MIPMAP_MODE_LINEAR;
     }
 }
-std::optional<AllocatedImage> load_image(VulkanEngine* engine, fastgltf::Asset& asset, fastgltf::Image& image)
+
+std::optional<AllocatedImage> load_image(VulkanEngine* engine, fastgltf::Asset& asset, fastgltf::Image& image, std::filesystem::path p)
 
 {
     AllocatedImage newImage{};
@@ -69,9 +70,13 @@ std::optional<AllocatedImage> load_image(VulkanEngine* engine, fastgltf::Asset& 
                 assert(filePath.fileByteOffset == 0); // We don't support offsets with stbi.
                 assert(filePath.uri.isLocalPath()); // We're only capable of loading
                 // local files.
-
-                const std::string path(filePath.uri.path().begin(),
+                // loading tex from file
+                std::string filepath( filePath.uri.path().begin(),
                 filePath.uri.path().end()); // Thanks C++.
+                auto absolutePath = p.parent_path().append(filePath.uri.path());
+
+                std::string path = absolutePath.string();
+
                 unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 4);
                 if (data) {
                     VkExtent3D imagesize;
@@ -282,7 +287,8 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine, std::s
     std::filesystem::path path = filePath;
 
     auto type = fastgltf::determineGltfFileType(&data);
-    if (type == fastgltf::GltfType::glTF) {
+    if (type == fastgltf::GltfType::glTF) 
+    {
         auto load = parser.loadGLTF(&data, path.parent_path(), gltfOptions);
         if (load) {
             gltf = std::move(load.get());
@@ -292,7 +298,8 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine, std::s
             return {};
         }
     }
-    else if (type == fastgltf::GltfType::GLB) {
+    else if (type == fastgltf::GltfType::GLB) 
+    {
         auto load = parser.loadBinaryGLTF(&data, path.parent_path(), gltfOptions);
         if (load) {
             gltf = std::move(load.get());
@@ -345,7 +352,7 @@ std::optional<std::shared_ptr<LoadedGLTF>> loadGltf(VulkanEngine* engine, std::s
 
         // load all textures
     for (fastgltf::Image& image : gltf.images) {
-        std::optional<AllocatedImage> img = load_image(engine, gltf, image);
+        std::optional<AllocatedImage> img = load_image(engine, gltf, image, path);
 
         if (img.has_value())
         {
@@ -776,6 +783,7 @@ v3 getVec3Multi(const rapidjson::Value& data_set, std::string Name, int index, i
 //
 //    }
 //}
+
 void read_sceneJson(VulkanEngine* engine, std::vector<GameObject>& gObjs, GPUSceneData& sceneData, const char* path)
 {
     using namespace rapidjson;

@@ -533,7 +533,7 @@ void VulkanEngine::run()
 				ImGui::Text("Selected Compute Background Effect: ", selected.name);
 
 				ImGui::SliderInt("Effect Index", &currentBackgroundEffect, 0, backgroundEffects.size() - 1);
-
+			
 
 				/*ImGui::DragFloat4("data1", (float*)&selected.data.data1, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
 				ImGui::DragFloat4("data2", (float*)&selected.data.data2, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
@@ -745,7 +745,7 @@ void VulkanEngine::run()
 				}
 				if (ImGui::TreeNode("GameObjects"))
 				{
-					if (ImGui::Button("Add GameObject"))
+					if (ImGui::Button("Add GameObject"))\
 					{
 						GameObject go;
 						go.m_id = "Cube";
@@ -1278,6 +1278,7 @@ AllocatedImage VulkanEngine::create_image(VkExtent3D size, VkFormat format, VkIm
 	return newImage;
 }
 
+// glb img loading
 AllocatedImage VulkanEngine::create_image(void* data, VkExtent3D size, VkFormat format, VkImageUsageFlags usage, bool mipmapped)
 {
 	size_t data_size = size.depth * size.width * size.height * 4;

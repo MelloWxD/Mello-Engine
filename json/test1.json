@@ -1,0 +1,101 @@
+{
+    "Scene_Data": [
+        {
+            "Model_ID": "Large_structure",
+            "Name": "TestObject - 9Cube",
+            "Position_x": 0.0,
+            "Position_y": 0.0,
+            "Position_z": 0.0,
+            "Rotation_x": 0.0,
+            "Rotation_y": 0.0,
+            "Rotation_z": 0.0,
+            "Scale_x": 1.0,
+            "Scale_y": 1.0,
+            "Scale_z": 1.0,
+            "Simulated": false,
+            "Static": false
+        }
+    ],
+    "Scene_Light_Data": [
+        {
+            "PointL_pos_x": -0.5,
+            "PointL_pos_y": 0.0,
+            "PointL_pos_z": 0.0,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 1.0,
+            "PointL_clr_y": 0.0,
+            "PointL_clr_z": 0.0,
+            "PointL_clr_w": 1.0
+        },
+        {
+            "PointL_pos_x": -96.41573333740235,
+            "PointL_pos_y": 38.447669982910159,
+            "PointL_pos_z": -29.626623153686525,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 1.0,
+            "PointL_clr_y": 0.0,
+            "PointL_clr_z": 0.0,
+            "PointL_clr_w": 10.0
+        },
+        {
+            "PointL_pos_x": 9.722129821777344,
+            "PointL_pos_y": 28.877365112304689,
+            "PointL_pos_z": -42.35512161254883,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 1.0,
+            "PointL_clr_y": 1.0,
+            "PointL_clr_z": 0.0,
+            "PointL_clr_w": 10.0
+        },
+        {
+            "PointL_pos_x": 89.80925750732422,
+            "PointL_pos_y": 47.484195709228519,
+            "PointL_pos_z": -17.970722198486329,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 1.0,
+            "PointL_clr_y": 0.0,
+            "PointL_clr_z": 1.0,
+            "PointL_clr_w": 10.0
+        },
+        {
+            "PointL_pos_x": 107.91902160644531,
+            "PointL_pos_y": 31.054061889648439,
+            "PointL_pos_z": 56.01127624511719,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 0.0,
+            "PointL_clr_y": 1.0,
+            "PointL_clr_z": 0.0,
+            "PointL_clr_w": 10.0
+        },
+        {
+            "PointL_pos_x": -16.46595001220703,
+            "PointL_pos_y": 37.307254791259769,
+            "PointL_pos_z": 36.2606315612793,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 0.0,
+            "PointL_clr_y": 0.0,
+            "PointL_clr_z": 1.0,
+            "PointL_clr_w": 10.0
+        },
+        {
+            "PointL_pos_x": -87.0926513671875,
+            "PointL_pos_y": 30.606395721435548,
+            "PointL_pos_z": 56.25782775878906,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 0.0,
+            "PointL_clr_y": 1.0,
+            "PointL_clr_z": 1.0,
+            "PointL_clr_w": 10.0
+        },
+        {
+            "PointL_pos_x": 0.0,
+            "PointL_pos_y": 0.0,
+            "PointL_pos_z": 0.0,
+            "PointL_pos_w": 0.0,
+            "PointL_clr_x": 1.0,
+            "PointL_clr_y": 0.0,
+            "PointL_clr_z": 0.0,
+            "PointL_clr_w": 1.0
+        }
+    ]
+}

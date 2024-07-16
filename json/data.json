@@ -13,6 +13,23 @@
         "Path": "..\\assets\\basicmesh.glb"
       },
       {
+        "Model_ID": "Car",
+        "Path": "..\\assets\\ToyCar.glb"
+      }, 
+      {
+        "Model_ID": "Chessboard",
+        "Path": "..\\assets\\beautifulGame\\ABeautifulGame.gltf"
+      }, 
+     
+      {
+        "Model_ID": "DragonStatue",
+        "Path": "..\\assets\\DragonAttenuation.glb"
+      }, 
+      {
+        "Model_ID": "cs2_injector",
+        "Path": "..\\assets\\HEALTHSHOT.glb"
+      },
+      {
         "Model_ID": "Sponza",
         "Path": "..\\assets\\sponza.glb"
       },
