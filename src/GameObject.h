@@ -43,5 +43,6 @@ public:
 	bool _static = false;
 	glm::quat rot = { 0, 0, 0, 0 };
 	std::string Name = "Unnammed";
+	std::string tag;
 	std::shared_ptr<LoadedGLTF> _pGLTF;
 };

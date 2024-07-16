@@ -2,9 +2,6 @@
 #include <vk_engine.h>
 
 #include <glm/gtx/transform.hpp>
-
-
-
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 #include <glm/gtx/transform.hpp>
@@ -348,6 +345,18 @@ void VulkanEngine::loadSavedHitbox(GameObject* go)
 	go->Update();
 }
 
+void VulkanEngine::Instantiate(GameObject GO, v3 Offset = v3(0), v3 Velocity = v3(0), std::string tag = "")
+{
+	auto& vGObjs = defaultScene.getSceneObjects();
+	GO._transform.position = Offset;
+	GO._transform.scale = v3(2);
+	GO.velocity = Velocity;
+	GO.tag = tag;
+	GO.Name = tag + std::to_string(vGObjs.size());
+	GO._vOBB.push_back(OBB(v3(0), v3(0.5)));
+	vGObjs.push_back(GO);
+
+}
 void VulkanEngine::run()
 {
 	SDL_Event e;
@@ -363,6 +372,17 @@ void VulkanEngine::run()
 		//Handle events on queue
 		while (SDL_PollEvent(&e) != 0)
 		{
+			if (e.type == SDL_MOUSEBUTTONDOWN)
+			{
+				if (e.button.button == 0)
+				{
+					GameObject go;
+					v3 pos = mainCamera.Position + (mainCamera.forward_dir() * -15.f);
+
+					Instantiate(go, pos, mainCamera.forward_dir() * -15.f, "Bullet");
+					
+				}
+			}
 			// Keyboard input
 			if (e.type == SDL_KEYDOWN) // A key is pressed
 			{
@@ -384,6 +404,20 @@ void VulkanEngine::run()
 				if (e.key.keysym.sym == SDLK_v) // Toggle Lock the mouse when g is pressed
 				{
 					(mainCamera.bNoclip) ? mainCamera.bNoclip = false : mainCamera.bNoclip = true;
+				}
+				if (e.key.keysym.sym == SDLK_k) // Toggle Lock the mouse when g is pressed
+				{
+					GameObject go;
+					go.m_id = "Cube";
+					go._pGLTF = loadedGLTFs[go.m_id];
+					go._transform.position = mainCamera.Position + (mainCamera.forward_dir() * -15.f);
+					go.rot = { 0, 0, 0, 0 };
+					go.scale = v3(1);
+
+					go.updateModelMat();
+					v3 pos = mainCamera.Position + (mainCamera.forward_dir() * -15.f);
+
+					Instantiate(go, pos, mainCamera.forward_dir() * -.15f, "Bullet");
 				}
 
 				//if (e.key.keysym.sym == SDLK_CAPSLOCK) // Toggle Lock the mouse when g is pressed
@@ -435,7 +469,9 @@ void VulkanEngine::run()
 		// imgui new frame
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
+		
 		ImGui::NewFrame();
+		
 		if (debugwindow)
 		{
 			auto& _vGameObjects = defaultScene.getSceneObjects();
@@ -533,7 +569,6 @@ void VulkanEngine::run()
 				ImGui::Text("Selected Compute Background Effect: ", selected.name);
 
 				ImGui::SliderInt("Effect Index", &currentBackgroundEffect, 0, backgroundEffects.size() - 1);
-			
 
 				/*ImGui::DragFloat4("data1", (float*)&selected.data.data1, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
 				ImGui::DragFloat4("data2", (float*)&selected.data.data2, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
@@ -722,13 +757,12 @@ void VulkanEngine::run()
 								{
 									if (ImGui::TreeNode(m.first.c_str()))
 									{
-										ImTextureID my_tex_id = m.second.image;
 										float my_tex_w = (float)m.second.imageExtent.width;
 										float my_tex_h = (float)m.second.imageExtent.height;
 
 										ImVec2 uv0 = ImVec2(0, 0);
 										ImVec2 uv1 = ImVec2(my_tex_w, my_tex_h);
-										ImGui::Image(my_tex_id, ImVec2(100, 100), ImVec2(0, 1), ImVec2(1, 0));
+										ImGui::Image(m.second.image, ImVec2(my_tex_w, my_tex_h), uv0, uv1);
 										ImGui::TreePop();
 
 									}
@@ -750,11 +784,12 @@ void VulkanEngine::run()
 						GameObject go;
 						go.m_id = "Cube";
 						go._pGLTF = loadedGLTFs[go.m_id];
-						go.pos = mainCamera.Position;
-						go.pos.z += 15.f;
-						//go.rot = { 0, 0, 0, 0 };
+						go._transform.position = mainCamera.Position + (mainCamera.forward_dir() * -15.f);
+						go.rot = { 0, 0, 0, 0 };
 						go.scale = v3(1);
-						go._modelMat = m4(1);
+						
+						go.updateModelMat();
+					//	go._modelMat = m4(1);
 						go.Name = "TestObject - " + std::to_string(_vGameObjects.size() + 1) + go.m_id;
 						go._vOBB.clear();
 						for (auto& m : savedHitboxData[go.m_id])
@@ -791,6 +826,13 @@ void VulkanEngine::run()
 								{
 									loadSavedHitbox(&GO);
 								}
+								if (ImGui::Button("Delete GameObject"))
+								{
+									_vGameObjects.erase(_vGameObjects.begin() + y);
+									ImGui::TreePop();
+									break;
+								}
+								
 								ImGui::Checkbox("Simulate", &GO._simulate);
 								ImGui::Checkbox("Static", &GO._static);
 
@@ -829,40 +871,51 @@ void VulkanEngine::run()
 
 									ImGui::TreePop();
 								}
-
+							
 								if (ImGui::TreeNode("Transform Editor"))
 								{
-									dpos[0] = GO._transform.position.x;
-									dpos[1] = GO._transform.position.y;
-									dpos[2] = GO._transform.position.z;
+									static int TRANSFORM_OP = 0;
+									ImGui::Text("1: Translate 2: Rotate 3: Scale");
+									for (int x = 0; x < 3; ++x)
+									{
+										std::string s(std::to_string(x+1));
+										if (ImGui::Selectable(s.c_str(), TRANSFORM_OP == x))
+										{
+											TRANSFORM_OP = x;
+										}
 
-									drot[0] = GO._transform.rotation.x;
-									drot[1] = GO._transform.rotation.y;
-									drot[2] = GO._transform.rotation.z;
-
-									dSca[0] = GO._transform.scale.x;
-									dSca[1] = GO._transform.scale.y;
-									dSca[2] = GO._transform.scale.z;
-
-									ImGui::DragFloat3("Position", dpos, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-
-									ImGui::DragFloat3("Rotation", drot, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-
-									ImGui::DragFloat3("Scale", dSca, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-
-									GO._transform.position.x = dpos[0];
-									GO._transform.position.y = dpos[1];
-									GO._transform.position.z = dpos[2];
-
-									GO._transform.rotation.x = drot[0];
-									GO._transform.rotation.y = drot[1];
-									GO._transform.rotation.z = drot[2];
-									GO._transform.scale.x = dSca[0];
-									GO._transform.scale.y = dSca[1];
-									GO._transform.scale.z = dSca[2];
-
+									}
+									switch (TRANSFORM_OP)
+									{
+									case 0:
+										dpos[0] = GO._transform.position.x;
+										dpos[1] = GO._transform.position.y;
+										dpos[2] = GO._transform.position.z;
+										ImGui::DragFloat3("Position", dpos, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
+										GO._transform.position.x = dpos[0];
+										GO._transform.position.y = dpos[1];
+										GO._transform.position.z = dpos[2];
+										break;
+									case 1:
+										drot[0] = GO._transform.rotation.x;
+										drot[1] = GO._transform.rotation.y;
+										drot[2] = GO._transform.rotation.z;
+										ImGui::DragFloat3("Rotation", drot, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
+										GO._transform.rotation.x = drot[0];
+										GO._transform.rotation.y = drot[1];
+										GO._transform.rotation.z = drot[2];
+										break;
+									case 2:
+										dSca[0] = GO._transform.scale.x;
+										dSca[1] = GO._transform.scale.y;
+										dSca[2] = GO._transform.scale.z;
+										ImGui::DragFloat3("Scale", dSca, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
+										GO._transform.scale.x = dSca[0];
+										GO._transform.scale.y = dSca[1];
+										GO._transform.scale.z = dSca[2];
+										break;
+									}
 									GO.updateModelMat();
-
 									ImGui::TreePop();
 
 								}
@@ -1148,7 +1201,16 @@ void VulkanEngine::update_scene()
 
 						if (GJK::GJK(lOBB, rObb, s, T_idx))
 						{
-
+							if (objL->tag == "Bullet")
+							{
+								_vGameObjects.erase(_vGameObjects.begin() + i);
+								continue;
+							}
+							if (objR->tag == "Bullet")
+							{
+								_vGameObjects.erase(_vGameObjects.begin() + j);
+								continue;
+							}
 							stats.Collisions += 1;
 
 							CollisionInfo colinfo = EPA(s, &lOBB, &rObb, T_idx);

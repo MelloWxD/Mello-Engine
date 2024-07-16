@@ -16,6 +16,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_vulkan.h"
+#include "ImGuizmo.h"
 
 #include <vk_types.h>
 #include <vk_initializers.h>
@@ -87,6 +88,8 @@ public:
 	void resize_swapchain();
 
 	void loadSavedHitbox(GameObject* go);
+
+	void Instantiate(GameObject GO, v3 Offset, v3 Velocity, std::string tag);
 
 	//run main loop
 	void run();

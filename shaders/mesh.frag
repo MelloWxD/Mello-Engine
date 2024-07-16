@@ -98,8 +98,9 @@ void main()
 	
 	for (int x = 0; x < 8; ++x)
 	{
-		vec4 plPos = sceneData.light[x].Position;
-		vec4 plAmbColour = sceneData.light[x].Ambient_Colour;
+		int y = x;
+		vec4 plPos = sceneData.light[y].Position;
+		vec4 plAmbColour = sceneData.light[y].Ambient_Colour;
 		lighting +=  calcPointLight(plPos.xyz, plAmbColour, inFragPos, inFragNormal);
 	}
 	
