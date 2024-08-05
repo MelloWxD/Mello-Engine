@@ -1,9 +1,9 @@
 #include "GameObject.h"
 #include "vk_engine.h"
-void GameObject::Update()
+void GameObject::Update(float dTime)
 {
 	// Update Model Mat
-	updateModelMat();
+	updateModelMat(dTime);
 
 	// Update Hitboxes
 	for (auto& hb : _vOBB)
@@ -14,11 +14,11 @@ void GameObject::Update()
 
 }
 
-void GameObject::updateModelMat()
+void GameObject::updateModelMat(float frametime)
 {
 	if (_simulate)
 	{
-		_transform.position.y -= 9.8f * 0.001f;
+		_transform.position.y -= (9.8f * mass) * (frametime / 1000); // convert to seconds for use in equation
 	}
 	_transform.position += velocity;
 	_transform.rotation.x += rot_velocity.x;

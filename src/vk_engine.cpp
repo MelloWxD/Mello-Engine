@@ -16,7 +16,7 @@ float Rad2Deg(float angRad)
 	return(angRad * (180 / glm::pi<float>()));
 }
 
-
+float g_ImguiFloat4[4] = { 0.f, 0.f, 0.f, 0.f };
 
 bool is_visible(const RenderObject& obj, const m4& viewproj) 
 {
@@ -104,6 +104,48 @@ void VulkanEngine::init()
 	//everything went fine
 	_isInitialized = true;
 }
+
+void ImGui_DragVec3(v3& vector, const char* Label, float inc, const char* fmt, float min, float max)
+{
+	g_ImguiFloat4[0] = vector.x;
+	g_ImguiFloat4[1] = vector.y;
+	g_ImguiFloat4[2] = vector.z;
+	
+	ImGui::DragFloat3(Label, g_ImguiFloat4, inc, min, max, fmt);
+
+	vector.x = g_ImguiFloat4[0];
+	vector.y = g_ImguiFloat4[1];
+	vector.z = g_ImguiFloat4[2];
+
+}
+void ImGui_DragQuat(glm::quat& quat, const char* Label, float inc, const char* fmt, float min, float max)
+{
+	g_ImguiFloat4[0] = quat.x;
+	g_ImguiFloat4[1] = quat.y;
+	g_ImguiFloat4[2] = quat.z;
+	
+	ImGui::DragFloat3(Label, g_ImguiFloat4, inc, min, max, fmt);
+
+	quat.x = g_ImguiFloat4[0];
+	quat.y = g_ImguiFloat4[1];
+	quat.z = g_ImguiFloat4[2];
+
+}
+void ImGui_DragVec4(v4& vector, const char* Label, float inc, const char* fmt, float min, float max)
+{
+	g_ImguiFloat4[0] = vector.x;
+	g_ImguiFloat4[1] = vector.y;
+	g_ImguiFloat4[2] = vector.z;
+	g_ImguiFloat4[3] = vector.w;
+	
+	ImGui::DragFloat4(Label, g_ImguiFloat4, inc, min, max, fmt);
+
+	vector.x = g_ImguiFloat4[0];
+	vector.y = g_ImguiFloat4[1];
+	vector.z = g_ImguiFloat4[2];
+	vector.w = g_ImguiFloat4[3];
+
+}
 void VulkanEngine::cleanup()
 {	
 	if (_isInitialized) 
@@ -142,6 +184,10 @@ void VulkanEngine::cleanup()
 	}
 }
 
+/// <summary>
+/// Reacreate swapchain.
+/// Used if extents change or window is resized
+/// </summary>
 void VulkanEngine::rebuild_swapchain()
 {
 	vkQueueWaitIdle(_graphicsQueue);
@@ -268,6 +314,9 @@ void VulkanEngine::draw()
 	// execute a copy from the draw image into the swapchain
 	vkutil::copy_image_to_image(cmd, _drawImage.image, m_swapchainImages[swapchainImageIndex], _drawExtent, _swapchainExtent);
 
+
+	//vkutil::copy_image_to_image(cmd, m_swapchainImages[swapchainImageIndex], viewportDrawImg, _drawExtent, _swapchainExtent);
+
 	// set swapchain image layout to Attachment Optimal so we can draw it
 	vkutil::transition_image(cmd, m_swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
@@ -342,7 +391,7 @@ void VulkanEngine::loadSavedHitbox(GameObject* go)
 	{
 		go->_vOBB.push_back(OBB(entry.second, entry.first)); // for each of them add to the list of hitboxes for taht gameobject
 	}
-	go->Update();
+	go->Update(stats.frametime);
 }
 
 void VulkanEngine::Instantiate(GameObject GO, v3 Offset = v3(0), v3 Velocity = v3(0), std::string tag = "")
@@ -414,7 +463,7 @@ void VulkanEngine::run()
 					go.rot = { 0, 0, 0, 0 };
 					go.scale = v3(1);
 
-					go.updateModelMat();
+					go.updateModelMat(stats.frametime);
 					v3 pos = mainCamera.Position + (mainCamera.forward_dir() * -15.f);
 
 					Instantiate(go, pos, mainCamera.forward_dir() * -.15f, "Bullet");
@@ -579,29 +628,10 @@ void VulkanEngine::run()
 
 				// Directional Light / Sun Editor
 				{
-					sunClr[0] = sceneData.Sun.sClr.x;
-					sunClr[1] = sceneData.Sun.sClr.y;
-					sunClr[2] = sceneData.Sun.sClr.z;
-
-					sunDir[0] = sceneData.Sun.sDir.x;
-					sunDir[1] = sceneData.Sun.sDir.y;
-					sunDir[2] = sceneData.Sun.sDir.z;
-					sunDir[3] = sceneData.Sun.sDir.w;
-
 					ImGui::Text("Sun / Directional Light");
-
-					ImGui::DragFloat3("Sun Direction", sunDir, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-					ImGui::DragFloat("Sun Power", &sunDir[3], 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-					ImGui::DragFloat3("Sun Colour", sunClr, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-
-					sceneData.Sun.sClr.x = sunClr[0];
-					sceneData.Sun.sClr.y = sunClr[1];
-					sceneData.Sun.sClr.z = sunClr[2];
-
-					sceneData.Sun.sDir.x = sunDir[0];
-					sceneData.Sun.sDir.y = sunDir[1];
-					sceneData.Sun.sDir.z = sunDir[2];
-					sceneData.Sun.sDir.w = sunDir[3];
+					ImGui_DragVec4(sceneData.Sun.sDir, "Sun Dir & Power", 0.005f, "%.4f", -FLT_MAX, FLT_MAX);
+					ImGui_DragVec4(sceneData.Sun.sClr, "Sun Colour", 0.005f, "%.4f", -FLT_MAX, FLT_MAX);
+			
 				}
 
 				// Point light stuff
@@ -616,29 +646,12 @@ void VulkanEngine::run()
 							{
 								pl.Position = v4(mainCamera.Position, pl.Position.w);
 							}
-							amb[0] = pl.Ambient_Colour.x;
-							amb[1] = pl.Ambient_Colour.y;
-							amb[2] = pl.Ambient_Colour.z;
-							amb[3] = pl.Ambient_Colour.w;
-
-							plPos[0] = pl.Position.x;
-							plPos[1] = pl.Position.y;
-							plPos[2] = pl.Position.z;
-							//sunDir[3] = sceneData.sDir.w;
-
-							ImGui::Text("Point Lights");
-							ImGui::DragFloat3("Position", plPos, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-							ImGui::DragFloat4("Colour", amb, 0.005f, -FLT_MAX, FLT_MAX, "%.4f");
-
-							pl.Ambient_Colour.x = amb[0];
-							pl.Ambient_Colour.y = amb[1];
-							pl.Ambient_Colour.z = amb[2];
-							pl.Ambient_Colour.w = amb[3];
-
-							pl.Position.x = plPos[0];
-							pl.Position.y = plPos[1];
-							pl.Position.z = plPos[2];
-							//sceneData.sDir.w = sunDir[3];
+							ImGui::Text("Settings");
+							ImGui_DragVec4(pl.Position, "PointLight Position", 0.005f, "%.4f", -FLT_MAX, FLT_MAX);
+							ImGui_DragVec4(pl.Colour, "PointLight Colour", 0.005f, "%.4f", -FLT_MAX, FLT_MAX);
+							ImGui_DragVec4(pl.Ambient_Colour, "PointLight Ambient Colour", 0.005f, "%.4f", -FLT_MAX, FLT_MAX);
+						
+							
 							ImGui::TreePop();
 						}
 					}
@@ -646,16 +659,25 @@ void VulkanEngine::run()
 				}
 				ImGui::End();
 			}
+			//if (ImGui::Begin("Viewport"))
+			//{
+			//	//auto vpDest = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, viewportDrawImg, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+			//	//ImGui::Image(vpDest, ImGui::GetContentRegionAvail());
+			//	ImGui::End();
+			//}
 			float dpos[3] = { 0, 0, 0 };
 			float drot[3] = { 0, 0, 0 };
 			float dSca[3] = { 0, 0, 0 };
 
 			if (ImGui::Begin("Editor Window"))
 			{
-
 				ImGui::SliderFloat("Render Scale", &renderScale, 0.3f, 1.f);
 				if (ImGui::TreeNode("Scene Hierarchy"))
 				{
+					int idx = get_flip_labels();
+				//	auto vpDest = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, _drawImage.imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+				//	ImGui::Image(vpDest, ImGui::GetContentRegionAvail());
 
 					for (auto& Scenes : loadedGLTFs)
 					{
@@ -743,7 +765,7 @@ void VulkanEngine::run()
 								{
 									if (ImGui::TreeNode(m.first.c_str()))
 									{
-										(m.second->data.passType == MaterialPass::MainColor) ? ImGui::Text("passType Main") : ImGui::Text("passType Transparent");
+										(m.second->data.passType == MaterialPass::MainColor) ? ImGui::SameLine(), ImGui::Text("passType Main") : ImGui::SameLine(), ImGui::Text("passType Transparent");
 
 										ImGui::TreePop();
 									}
@@ -753,16 +775,14 @@ void VulkanEngine::run()
 							}
 							if (ImGui::TreeNode("Images"))
 							{
-								for (auto& m : Scenes.second->images)
+								for (auto& Img : Scenes.second->images)
 								{
-									if (ImGui::TreeNode(m.first.c_str()))
+									if (ImGui::TreeNode(Img.first.c_str()))
 									{
-										float my_tex_w = (float)m.second.imageExtent.width;
-										float my_tex_h = (float)m.second.imageExtent.height;
+										auto vpDest = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, Img.second.imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-										ImVec2 uv0 = ImVec2(0, 0);
-										ImVec2 uv1 = ImVec2(my_tex_w, my_tex_h);
-										ImGui::Image(m.second.image, ImVec2(my_tex_w, my_tex_h), uv0, uv1);
+										ImGui::Image(vpDest, ImGui::GetContentRegionAvail());
+
 										ImGui::TreePop();
 
 									}
@@ -779,7 +799,9 @@ void VulkanEngine::run()
 				}
 				if (ImGui::TreeNode("GameObjects"))
 				{
-					if (ImGui::Button("Add GameObject"))\
+
+					
+					if (ImGui::Button("Add GameObject"))
 					{
 						GameObject go;
 						go.m_id = "Cube";
@@ -788,8 +810,8 @@ void VulkanEngine::run()
 						go.rot = { 0, 0, 0, 0 };
 						go.scale = v3(1);
 						
-						go.updateModelMat();
-					//	go._modelMat = m4(1);
+						go.updateModelMat(stats.frametime);
+						//	go._modelMat = m4(1);
 						go.Name = "TestObject - " + std::to_string(_vGameObjects.size() + 1) + go.m_id;
 						go._vOBB.clear();
 						for (auto& m : savedHitboxData[go.m_id])
@@ -832,13 +854,15 @@ void VulkanEngine::run()
 									ImGui::TreePop();
 									break;
 								}
+								float* m = &GO.mass;
+								ImGui::DragFloat("Mass", m, 0.005f, 0, FLT_MAX, "%.3f");
 								
 								ImGui::Checkbox("Simulate", &GO._simulate);
 								ImGui::Checkbox("Static", &GO._static);
 
 
 
-								if (ImGui::TreeNode("Model & Texture Editor"))
+								if (ImGui::TreeNode("Change Model"))
 								{
 
 									if (ImGui::BeginListBox("Models"))
@@ -871,77 +895,58 @@ void VulkanEngine::run()
 
 									ImGui::TreePop();
 								}
-							
-								if (ImGui::TreeNode("Transform Editor"))
+
+								if (ImGui::TreeNode("Change Texture"))
 								{
-									static int TRANSFORM_OP = 0;
-									ImGui::Text("1: Translate 2: Rotate 3: Scale");
-									for (int x = 0; x < 3; ++x)
+
+									if (ImGui::BeginListBox("Textures"))
 									{
-										std::string s(std::to_string(x+1));
-										if (ImGui::Selectable(s.c_str(), TRANSFORM_OP == x))
+										static int item_current_idx = 0;
+										int cnt = 0;
+										for (auto& gltf : loadedGLTFs)
 										{
-											TRANSFORM_OP = x;
+											/*for (auto& image : gltf.second->images)
+											{*/
+											auto& images = gltf.second->images;
+												++cnt;
+												const bool is_selected = (item_current_idx == cnt);
+												if (ImGui::Selectable(gltf.first.c_str(), is_selected))
+													item_current_idx = cnt;
+
+												// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+												if (is_selected)
+												{
+													ImGui::SetItemDefaultFocus();
+													item_current_idx = cnt;
+													GO._pGLTF->images = images;
+													GO.m_id = gltf.first;
+												}
+											/*}
+											*/
+
 										}
 
+										ImGui::EndListBox();
 									}
-									switch (TRANSFORM_OP)
-									{
-									case 0:
-										dpos[0] = GO._transform.position.x;
-										dpos[1] = GO._transform.position.y;
-										dpos[2] = GO._transform.position.z;
-										ImGui::DragFloat3("Position", dpos, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-										GO._transform.position.x = dpos[0];
-										GO._transform.position.y = dpos[1];
-										GO._transform.position.z = dpos[2];
-										break;
-									case 1:
-										drot[0] = GO._transform.rotation.x;
-										drot[1] = GO._transform.rotation.y;
-										drot[2] = GO._transform.rotation.z;
-										ImGui::DragFloat3("Rotation", drot, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-										GO._transform.rotation.x = drot[0];
-										GO._transform.rotation.y = drot[1];
-										GO._transform.rotation.z = drot[2];
-										break;
-									case 2:
-										dSca[0] = GO._transform.scale.x;
-										dSca[1] = GO._transform.scale.y;
-										dSca[2] = GO._transform.scale.z;
-										ImGui::DragFloat3("Scale", dSca, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-										GO._transform.scale.x = dSca[0];
-										GO._transform.scale.y = dSca[1];
-										GO._transform.scale.z = dSca[2];
-										break;
-									}
-									GO.updateModelMat();
+									ImGui::TreePop();
+								}
+								if (ImGui::TreeNode("Transform Editor"))
+								{
+									ImGui_DragVec3(GO._transform.position, "Position", 0.005f, "%.3f", -FLT_MAX, FLT_MAX);
+									ImGui_DragQuat(GO._transform.rotation, "Rotation", 0.005f, "%.3f", -FLT_MAX, FLT_MAX);
+									ImGui_DragVec3(GO._transform.scale, "Scale", 0.005f, "%.3f", -FLT_MAX, FLT_MAX);
+									GO.updateModelMat(stats.frametime);
 									ImGui::TreePop();
 
 								}
 
 								if (ImGui::TreeNode("Velocity Editor"))
 								{
-									dpos[0] = GO.velocity.x;
-									dpos[1] = GO.velocity.y;
-									dpos[2] = GO.velocity.z;
-
-									dSca[0] = GO.rot_velocity.x;
-									dSca[1] = GO.rot_velocity.y;
-									dSca[2] = GO.rot_velocity.z;
-
-									ImGui::DragFloat3("Velocity", dpos, 0.005f, -FLT_MAX, FLT_MAX, "%.3f");
-
-									ImGui::DragFloat3("Rotational Velocity", dSca, 0.005f, -FLT_MAX, FLT_MAX, "%.3f");
-									GO.velocity.x = dpos[0];
-									GO.velocity.y = dpos[1];
-									GO.velocity.z = dpos[2];
-
-									GO.rot_velocity.x = dSca[0];
-									GO.rot_velocity.y = dSca[1];
-									GO.rot_velocity.z = dSca[2];
-
-									GO.Update();
+								
+									ImGui_DragVec3(GO.velocity, "Velocity", 0.005f, "%.3f", -FLT_MAX, FLT_MAX);
+									ImGui_DragVec3(GO.rot_velocity, "Rotational Velocity", 0.005f, "%.3f", -FLT_MAX, FLT_MAX);
+									
+									GO.updateModelMat(stats.frametime);
 
 									ImGui::TreePop();
 
@@ -952,7 +957,6 @@ void VulkanEngine::run()
 									if (ImGui::Button("Add Another Hitbox"))
 									{
 										GO._vOBB.push_back(OBB());
-
 									}
 									ImGui::SameLine();
 									if (ImGui::Button("Save Hitboxes"))
@@ -966,93 +970,33 @@ void VulkanEngine::run()
 									}
 									else
 									{
-										if (GO._vOBB.size() == 1)
+										for (int n = 0; n < GO._vOBB.size(); ++n)
 										{
-											dpos[0] = GO._vOBB[0].e.x;
-											dpos[1] = GO._vOBB[0].e.y;
-											dpos[2] = GO._vOBB[0].e.z;
-
-											dSca[0] = GO._vOBB[0].offset.x;
-											dSca[1] = GO._vOBB[0].offset.y;
-											dSca[2] = GO._vOBB[0].offset.z;
-
-											ImGui::DragFloat3("Extents", dpos, 0.005f, -FLT_MAX, FLT_MAX, "%.3f");
-
-											ImGui::DragFloat3("Offset", dSca, 0.005f, -FLT_MAX, FLT_MAX, "%.3f");
-
-											ImGui::DragFloat("Sphere Scale", &spherescale, 0.05, 0, 100, "%.3f");
-											GO._vOBB[0].e.x = dpos[0];
-											GO._vOBB[0].e.y = dpos[1];
-											GO._vOBB[0].e.z = dpos[2];
-
-											GO._vOBB[0].offset.x = dSca[0];
-											GO._vOBB[0].offset.y = dSca[1];
-											GO._vOBB[0].offset.z = dSca[2];
-											auto vert_positions = GO._vOBB[0].m_coords;
-											for (int i = 0; i < 8; ++i)
+											std::string nam = "Hitbox - " + std::to_string(n);
+											if (ImGui::TreeNode(nam.c_str()))
 											{
-												_vGameObjects[i]._transform.position = GO._vOBB[0].m_coords[i];
-												_vGameObjects[i]._transform.scale = v3(spherescale);
-												_vGameObjects[i].updateModelMat();
-												_vGameObjects[i]._pGLTF = loadedGLTFs["Sphere"];
-
-											}
-											GO.Update();
-										}
-										else
-										{
-											for (int n = 0; n < GO._vOBB.size(); ++n)
-											{
-												std::string nam = "Hitbox - " + std::to_string(n);
-												if (ImGui::TreeNode(nam.c_str()))
+												if (ImGui::Button("Remove Hitbox"))
 												{
-													if (ImGui::Button("Remove Hitbox"))
-													{
-														GO._vOBB.erase(GO._vOBB.begin() + n);
-													}
-													else
-													{
-													
-														
-														dpos[0] = GO._vOBB[n].e.x;
-														dpos[1] = GO._vOBB[n].e.y;
-														dpos[2] = GO._vOBB[n].e.z;
-
-														dSca[0] = GO._vOBB[n].offset.x;
-														dSca[1] = GO._vOBB[n].offset.y;
-														dSca[2] = GO._vOBB[n].offset.z;
-
-														ImGui::DragFloat3("Extents", dpos, 0.005f, -FLT_MAX, FLT_MAX, "%.3f");
-
-														ImGui::DragFloat3("Offset", dSca, 0.005f, -FLT_MAX, FLT_MAX, "%.3f");
-
-														ImGui::DragFloat("Sphere Scale", &spherescale, 0.05, 0, 100, "%.3f");
-														GO._vOBB[n].e.x = dpos[0];
-														GO._vOBB[n].e.y = dpos[1];
-														GO._vOBB[n].e.z = dpos[2];
-
-														GO._vOBB[n].offset.x = dSca[0];
-														GO._vOBB[n].offset.y = dSca[1];
-														GO._vOBB[n].offset.z = dSca[2];
-														auto vert_positions = GO._vOBB[n].m_coords;
-														for (int i = 0; i < 8; ++i)
-														{
-															_vGameObjects[i]._transform.position = GO._vOBB[n].m_coords[i];
-															_vGameObjects[i]._transform.scale = v3(spherescale);
-															_vGameObjects[i].updateModelMat();
-															_vGameObjects[i]._pGLTF = loadedGLTFs["Sphere"];
-
-														}
-														GO.Update();
-													}
-													ImGui::TreePop();
-
+													GO._vOBB.erase(GO._vOBB.begin() + n);
 												}
-
+												else
+												{
+													ImGui_DragVec3(GO._vOBB[n].e, "Extents", 0.0005f, "%.4f", -FLT_MAX, FLT_MAX);
+													ImGui_DragVec3(GO._vOBB[n].offset, "Offset", 0.0005f, "%.4f", -FLT_MAX, FLT_MAX);
+												
+													auto vert_positions = GO._vOBB[n].m_coords;
+													for (int i = 0; i < 8; ++i)
+													{
+														_vGameObjects[i]._transform.position = GO._vOBB[n].m_coords[i];
+														_vGameObjects[i]._transform.scale = v3(spherescale);
+														_vGameObjects[i].updateModelMat(stats.frametime);
+														_vGameObjects[i]._pGLTF = loadedGLTFs["Sphere"];
+													}
+													GO.Update(stats.frametime);
+												}
+												ImGui::TreePop();
 											}
-
 										}
-
 									}
 									ImGui::TreePop();
 								}
@@ -1061,14 +1005,8 @@ void VulkanEngine::run()
 							}
 
 						}
-
-						
-
 					}
-
 					ImGui::TreePop();
-
-
 				}
 				ImGui::End();
 			}
@@ -1173,14 +1111,24 @@ void VulkanEngine::update_scene()
 		// Game objects vs Game ojbects collisions
 		for (int i = 8; i < _vGameObjects.size(); ++i)
 		{
+			v3 tDpos = v3(0);
+			GameObject* objL = &_vGameObjects[i];
+			if (objL->_static)
+			{
+				continue;
+			}
 			for (int j = 8; j < _vGameObjects.size(); ++j)
 			{
-				if (i == j)
+				GameObject* objR = &_vGameObjects[j];
+				if (objR->_static)
 				{
 					continue;
 				}
-				GameObject* objL = &_vGameObjects[i];
-				GameObject* objR = &_vGameObjects[j];
+				// If static or the same then ignore.
+				if (i == j || objR->_static)
+				{
+					continue;
+				}
 
 				// Check for AABB Collisions.
 				if (objL->getCollidable() == false || objR->getCollidable() == false)
@@ -1193,12 +1141,13 @@ void VulkanEngine::update_scene()
 				}
 
 				Simplex s;
-				int T_idx = 0; // For knowing which tetrahedron inside the obb the collision was detected on
-				for (auto lOBB : objL->_vOBB)
+				int T_idx = 0; // tetra index
+				// iterate over all OBBs on object
+				for (const OBB& lOBB : objL->_vOBB)
 				{
-					for (auto rObb : objR->_vOBB)
+					
+					for (const OBB& rObb : objR->_vOBB)
 					{
-
 						if (GJK::GJK(lOBB, rObb, s, T_idx))
 						{
 							if (objL->tag == "Bullet")
@@ -1215,10 +1164,6 @@ void VulkanEngine::update_scene()
 
 							CollisionInfo colinfo = EPA(s, &lOBB, &rObb, T_idx);
 
-							if (colinfo.penDepth < 0.03)
-							{
-								colinfo.penDepth = 0.00f;
-							}
 							if (std::isnan(colinfo.penDepth))
 							{
 								colinfo.penDepth = 0;
@@ -1242,6 +1187,7 @@ void VulkanEngine::update_scene()
 							v3 Dpos = glm::normalize(colinfo.Normal) * colinfo.penDepth;
 							v3 diffVec = glm::normalize(lOBB.c - rObb.c);
 
+							// correct direction if wrong
 							for (int y = 0; y < 3; ++y)
 							{
 								if (diffVec[y] < 0) // Obj is either on the right of player or behind
@@ -1251,23 +1197,19 @@ void VulkanEngine::update_scene()
 								}
 							}
 
-							if (!objL->_static)
-							{
-								objL->_transform.position += (Dpos * v3(0.5f));
-							}
-							if (!objR->_static)
-							{
-								objR->_transform.position -= (Dpos * v3(0.5f));
-							}
+							
+								//objL->_transform.position += (Dpos * v3(0.5f));
+								tDpos += (Dpos);
+							
+							
 
-							objR->Update();
-							objL->Update();
-
-							//printf("Colliding with Object - %s  No %d\n", objR->GetModelID().c_str(), i);
+							
 						}
 					}
 				}
 			}
+			objL->_transform.position += tDpos;
+
 		}
 	}
 	auto end = std::chrono::system_clock::now();
@@ -1280,7 +1222,7 @@ void VulkanEngine::update_scene()
 	for (auto& entry : _vGameObjects)
 	{
 
-		entry.Update();
+		entry.Update(stats.frametime);
 		if (entry._pGLTF != nullptr) entry._pGLTF->Draw(entry._modelMat, mainDrawContext);
 
 	}
@@ -1412,66 +1354,6 @@ void VulkanEngine::destroy_buffer(const AllocatedBuffer& buffer)
 }
 
 constexpr bool bUseValidationLayers = true;
-void VulkanEngine::init_triangle_pipeline()
-{
-	VkShaderModule triangleFragShader;
-	if (!vkutil::load_shader_module("F:/MelloEngine/shaders/colored_trianglePS.spv", _device, &triangleFragShader)) {
-		printf("Error when building the triangle fragment shader module\n");
-	}
-	else {
-		printf("Triangle fragment shader succesfully loaded\n");
-	}
-
-	VkShaderModule triangleVertexShader;
-	if (!vkutil::load_shader_module("F:/MelloEngine/shaders/colored_triangleVS.spv", _device, &triangleVertexShader)) {
-		printf("Error when building the triangle vertex shader module\n");
-	}
-	else {
-		printf("Triangle vertex shader succesfully loaded\n");
-	}
-
-	//build the pipeline layout that controls the inputs/outputs of the shader
-	//we are not using descriptor sets or other systems yet, so no need to use anything other than empty default
-	VkPipelineLayoutCreateInfo pipeline_layout_info = vkinit::pipeline_layout_create_info();
-	VK_CHECK(vkCreatePipelineLayout(_device, &pipeline_layout_info, nullptr, &_trianglePipelineLayout));
-
-
-	//Builder
-	PipelineBuilder pipelineBuilder;
-
-	//use the triangle layout we created
-	pipelineBuilder._pipelineLayout = _trianglePipelineLayout;
-	//connecting the vertex and pixel shaders to the pipeline
-	pipelineBuilder.set_shaders(triangleVertexShader, triangleFragShader);
-	//it will draw triangles
-	pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-	//filled triangles
-	pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-	//no backface culling
-	pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
-	//no multisampling
-	pipelineBuilder.set_multisampling_none();
-	//no blending
-	pipelineBuilder.enable_blending_additive(); 
-	pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
-
-	//connect the image format we will draw into, from draw image
-	pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-	pipelineBuilder.set_depth_format(_depthImage.imageFormat);
-
-	//finally build the pipeline
-	_trianglePipeline = pipelineBuilder.build_pipeline(_device);
-
-	//clean structures
-	vkDestroyShaderModule(_device, triangleFragShader, nullptr);
-	vkDestroyShaderModule(_device, triangleVertexShader, nullptr);
-
-	_mainDeletionQueue.push_function([&]() {
-		vkDestroyPipelineLayout(_device, _trianglePipelineLayout, nullptr);
-	vkDestroyPipeline(_device, _trianglePipeline, nullptr);
-	});
-
-}
 
 GPUMeshBuffers VulkanEngine::uploadMesh(std::span<uint32_t> indices, std::span<Vertex> vertices)
 {
@@ -1649,6 +1531,7 @@ void VulkanEngine::draw_geometry(VkCommandBuffer cmd)
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	stats.mesh_draw_time = elapsed.count() / 1000.f;
 }
+
 void VulkanEngine::init_mesh_pipeline()
 {
 	// Load shaders
@@ -1720,6 +1603,7 @@ void VulkanEngine::init_mesh_pipeline()
 	});
 
 }
+
 void VulkanEngine::immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function)
 {
 	VK_CHECK(vkResetFences(_device, 1, &_immFence));
@@ -1744,6 +1628,7 @@ void VulkanEngine::immediate_submit(std::function<void(VkCommandBuffer cmd)>&& f
 
 	VK_CHECK(vkWaitForFences(_device, 1, &_immFence, true, 9999999999));
 }
+
 void VulkanEngine::init_vulkan()
 {
 	// Create Instance
@@ -2244,6 +2129,10 @@ void VulkanEngine::init_renderables()
 	read_sceneJson(this, defaultScene.getSceneObjects(), defaultScene.getShaderData(), "..\\json\\test.json"); // fils out defaultScene
 
 }
+
+/// <summary>
+/// Initialize the compute, mesh and PBR pipelines
+/// </summary>
 void VulkanEngine::init_pipelines()
 {
 	//Compute pipeline
@@ -2251,9 +2140,11 @@ void VulkanEngine::init_pipelines()
 
 
 	// Graphics pipeline
-	init_triangle_pipeline();
+//	init_triangle_pipeline();
+
 	init_mesh_pipeline();
 
+	// PBR Metallic Roughness
 	metalRoughMaterial.build_pipelines(this);
 
 

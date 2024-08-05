@@ -18,9 +18,9 @@ public:
 		_vOBB.clear();
 		_pGLTF = nullptr;
 	}
-	void Update();
+	void Update(float dTime);
 
-	void updateModelMat();
+	void updateModelMat(float frametime);
 
 
 	const bool getCollidable()
@@ -38,11 +38,14 @@ public:
 	//ColliderShapes::ColliderTypes _colliderType;
 	std::vector<OBB> _vOBB;
 	int _numColliders = 1;
+
+	float mass = 1.f;
 	bool canCollide = true;
 	bool _simulate = false;
 	bool _static = false;
 	glm::quat rot = { 0, 0, 0, 0 };
 	std::string Name = "Unnammed";
+	
 	std::string tag;
 	std::shared_ptr<LoadedGLTF> _pGLTF;
 };

@@ -9,7 +9,7 @@ C:/VulkanSDK/1.3.280.0/Bin/glslc.exe F:/MelloEngine/shaders/tex_image.frag -o F:
 C:/VulkanSDK/1.3.280.0/Bin/glslc.exe F:/MelloEngine/shaders/mesh.vert -o F:/MelloEngine/shaders/mesh.vert.spv
 C:/VulkanSDK/1.3.280.0/Bin/glslc.exe F:/MelloEngine/shaders/mesh.frag -o F:/MelloEngine/shaders/mesh.frag.spv
 
-C:/VulkanSDK/1.3.280.0/Bin/glslc.exe F:/MelloEngine/shaders/mesh_pbr.frag -o F:/MelloEngine/shaders/meshPBR.frag.spv
+C:/VulkanSDK/1.3.280.0/Bin/glslc.exe F:/MelloEngine/shaders/mesh_pbr.frag -o F:/MelloEngine/shaders/mesh_pbr.frag.spv
 
 
 echo "Compiled Shaders"

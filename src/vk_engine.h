@@ -141,6 +141,7 @@ public:
 
 	FrameData& get_current_frame() { return _frames[_frameNumber % FRAME_OVERLAP]; };
 
+	int get_flip_labels() {return _frameNumber % FRAME_OVERLAP ;}
 	VkQueue _graphicsQueue;
 	uint32_t _graphicsQueueFamily;
 
@@ -164,6 +165,7 @@ public:
 	VkSampler _defaultSamplerLinear;
 	VkSampler _defaultSamplerNearest;
 
+	VkImage viewportDrawImg;
 
 	//draw resources
 	AllocatedImage _drawImage;
