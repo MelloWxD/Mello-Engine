@@ -523,6 +523,20 @@ void VulkanEngine::run()
 		
 		if (debugwindow)
 		{
+			if (!bCachedTextures)
+			{
+				for (auto& gltf : loadedGLTFs)
+				{
+					for (auto& image : gltf.second->images)
+					{
+						// Grab & Cache all textures to suitable format for rendeirng in ImGui
+						cachedImguiTextures[image.first] = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, image.second.imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+
+					}
+				}
+				bCachedTextures = true;
+			}
 			auto& _vGameObjects = defaultScene.getSceneObjects();
 			auto& sceneData = defaultScene.getShaderData();
 			// Camera Window
@@ -606,11 +620,7 @@ void VulkanEngine::run()
 				}
 				ImGui::End();
 			}
-			float sunDir[4] = { 0.f, 0.f, 0.f, 0.f };
-			float sunClr[4] = { 0.f, 0.f, 0.f};
 			
-			float plPos[3] = { 0.f, 0.f, 0.f };
-			float amb[4] = { 0.f, 0.f, 0.f, 0.f};
 			if (ImGui::Begin("Shader Data"))
 			{
 				ComputeEffect& selected = backgroundEffects[currentBackgroundEffect];
@@ -659,16 +669,7 @@ void VulkanEngine::run()
 				}
 				ImGui::End();
 			}
-			//if (ImGui::Begin("Viewport"))
-			//{
-			//	//auto vpDest = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, viewportDrawImg, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-			//	//ImGui::Image(vpDest, ImGui::GetContentRegionAvail());
-			//	ImGui::End();
-			//}
-			float dpos[3] = { 0, 0, 0 };
-			float drot[3] = { 0, 0, 0 };
-			float dSca[3] = { 0, 0, 0 };
+			
 
 			if (ImGui::Begin("Editor Window"))
 			{
@@ -676,65 +677,11 @@ void VulkanEngine::run()
 				if (ImGui::TreeNode("Scene Hierarchy"))
 				{
 					int idx = get_flip_labels();
-				//	auto vpDest = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, _drawImage.imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-				//	ImGui::Image(vpDest, ImGui::GetContentRegionAvail());
-
+			
 					for (auto& Scenes : loadedGLTFs)
 					{
 						if (ImGui::TreeNode(Scenes.first.c_str()))
 						{
-							if (ImGui::TreeNode("Top Nodes"))
-							{
-								int count = 0;
-								for (auto& m : Scenes.second->topNodes)
-								{
-									++count;
-									std::string c = "Node - ";
-									c += count;
-
-									if (ImGui::TreeNode(c.c_str()))
-									{
-										ImGui::Text("Transform Editor");
-										dpos[0] = m->vTrans.x;
-										dpos[1] = m->vTrans.y;
-										dpos[2] = m->vTrans.z;
-
-										drot[0] = m->qRot.x;
-										drot[1] = m->qRot.y;
-										drot[2] = m->qRot.z;
-
-										dSca[0] = m->vScale.x;
-										dSca[1] = m->vScale.y;
-										dSca[2] = m->vScale.z;
-
-
-										ImGui::DragFloat3("Position", dpos, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-
-										ImGui::DragFloat3("Rotation", drot, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-
-										ImGui::DragFloat3("Scale", dSca, 0.05f, -FLT_MAX, FLT_MAX, "%.3f");
-
-										m->vTrans.x = dpos[0];
-										m->vTrans.y = dpos[1];
-										m->vTrans.z = dpos[2];
-
-										m->qRot.x = drot[0];
-										m->qRot.y = drot[1];
-										m->qRot.z = drot[2];
-										m->qRot.w = 1;
-										m->vScale.x = dSca[0];
-										m->vScale.y = dSca[1];
-										m->vScale.z = dSca[2];
-
-										m4 mMat = glm::translate(v3(dpos[0], dpos[1], dpos[2])) * glm::rotate(m->qRot.x, v3(1, 0, 0)) * glm::rotate(m->qRot.y, v3(0, 1, 0)) * glm::rotate(m->qRot.z, v3(0, 0, 1));
-										mMat *= glm::scale(m->vScale);
-										m->refreshTransform(mMat);
-										ImGui::TreePop();
-									}
-								}
-								ImGui::TreePop();
-
-							}
 							if (ImGui::TreeNode("Meshes"))
 							{
 								for (auto& m : Scenes.second->meshes)
@@ -779,9 +726,8 @@ void VulkanEngine::run()
 								{
 									if (ImGui::TreeNode(Img.first.c_str()))
 									{
-										auto vpDest = ImGui_ImplVulkan_AddTexture(_defaultSamplerLinear, Img.second.imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-										ImGui::Image(vpDest, ImGui::GetContentRegionAvail());
+										ImGui::Image(cachedImguiTextures[Img.first], ImGui::GetContentRegionAvail());
 
 										ImGui::TreePop();
 

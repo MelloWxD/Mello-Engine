@@ -5,46 +5,18 @@
       "Path": "..\\assets\\box.glb"
     },
     {
-      "Model_ID": "Cartoon_House",
-      "Path": "..\\assets\\house2.glb"
-    },
-    {
-      "Model_ID": "basic_mesh",
-      "Path": "..\\assets\\basicmesh.glb"
-    },
-    {
-      "Model_ID": "Car",
-      "Path": "..\\assets\\ToyCar.glb"
-    },
-    {
-      "Model_ID": "Chessboard",
-      "Path": "..\\assets\\beautifulGame\\ABeautifulGame.gltf"
-    },
-
-
-    {
-      "Model_ID": "DragonStatue",
-      "Path": "..\\assets\\DragonAttenuation.glb"
-    },
-    {
-      "Model_ID": "cs2_injector",
-      "Path": "..\\assets\\HEALTHSHOT.glb"
+      "Model_ID": "Sphere",
+      "Path": "..\\assets\\sphere.glb"
     },
     {
       "Model_ID": "Sponza",
       "Path": "..\\assets\\sponza.glb"
     },
     {
-      "Model_ID": "Large_structure",
-      "Path": "..\\assets\\structure.glb"
-    },
-    {
-      "Model_ID": "Sphere",
-      "Path": "..\\assets\\sphere.glb"
-    },
-    {
-      "Model_ID": "Damaged_Helmet_pbr",
-      "Path": "..\\assets\\DamagedHelmet.glb"
+      "Model_ID": "Chessboard",
+      "Path": "..\\assets\\beautifulGame\\ABeautifulGame.gltf"
     }
+
   ]
 }
+   

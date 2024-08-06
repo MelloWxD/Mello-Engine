@@ -106,6 +106,7 @@ public:
 
 	void update_scene();
 	std::unordered_map<std::string, std::shared_ptr<LoadedGLTF>> loadedGLTFs;
+	std::unordered_map<std::string, VkDescriptorSet> cachedImguiTextures;
 	std::unordered_map<std::string, std::shared_ptr<Node>> loadedNodes;
 
 	//std::vector<GameObject> _vGameObjects;
@@ -113,6 +114,7 @@ public:
 	std::vector<Scene> _Scenes;
 	Scene defaultScene;
 
+	bool bCachedTextures = false;
 
 	Camera mainCamera;
 	float sDTime;
